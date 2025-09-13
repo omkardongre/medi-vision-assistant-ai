@@ -1,12 +1,28 @@
 {
-  "name": "my-v0-project",
-  "version": "0.1.0",
+  "name": "medivision-assistant",
+  "version": "1.0.0",
   "private": true,
+  "description": "AI-powered healthcare companion for accessible health monitoring",
+  "keywords": [
+    "healthcare",
+    "accessibility",
+    "AI",
+    "health monitoring",
+    "elderly care",
+    "Google AI Studio"
+  ],
+  "license": "MIT",
+  "author": "MediVision Team",
   "scripts": {
     "build": "next build",
+    "deploy:gcp": "gcloud builds submit --config cloudbuild.yaml",
     "dev": "next dev",
+    "docker:build": "docker build -t medivision-assistant .",
+    "docker:run": "docker run -p 3000:3000 medivision-assistant",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "test": "echo \"Tests would be implemented here\"",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@google/generative-ai": "latest",
@@ -73,5 +89,9 @@
     "tailwindcss": "^4.1.9",
     "tw-animate-css": "1.3.3",
     "typescript": "^5"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
   }
 }
