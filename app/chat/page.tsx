@@ -1,0 +1,262 @@
+"use client"
+
+import type React from "react"
+
+import { useState, useRef, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { apiClient } from "@/lib/api-client"
+import { useSpeech } from "@/hooks/use-speech"
+import { ArrowLeft, Send, Volume2, VolumeX, Bot, User } from "lucide-react"
+
+interface Message {
+  id: string
+  role: "user" | "assistant"
+  content: string
+  timestamp: Date
+}
+
+export default function ChatPage() {
+  const router = useRouter()
+  const { speak, isSpeaking, stop } = useSpeech()
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: "welcome",
+      role: "assistant",
+      content:
+        "Hello! I'm your AI health assistant. I'm here to help answer your health questions and provide general guidance. How can I assist you today?",
+      timestamp: new Date(),
+    },
+  ])
+  const [inputMessage, setInputMessage] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [voiceEnabled, setVoiceEnabled] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || isLoading) return
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: inputMessage,
+      timestamp: new Date(),
+    }
+
+    setMessages((prev) => [...prev, userMessage])
+    setInputMessage("")
+    setIsLoading(true)
+
+    try {
+      const response = await apiClient.sendChatMessage(inputMessage, messages)
+
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: response,
+        timestamp: new Date(),
+      }
+
+      setMessages((prev) => [...prev, assistantMessage])
+
+      // Speak the response if voice is enabled
+      if (voiceEnabled) {
+        speak(response)
+      }
+    } catch (error) {
+      console.error("Chat error:", error)
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "I'm sorry, I'm having trouble responding right now. Please try again in a moment.",
+        timestamp: new Date(),
+      }
+      setMessages((prev) => [...prev, errorMessage])
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      handleSendMessage()
+    }
+  }
+
+  const toggleVoice = () => {
+    if (voiceEnabled) {
+      stop()
+    }
+    setVoiceEnabled(!voiceEnabled)
+  }
+
+  const speakMessage = (content: string) => {
+    if (isSpeaking) {
+      stop()
+    } else {
+      speak(content)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <header className="border-b border-border bg-card">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.back()}
+                className="touch-target"
+                aria-label="Go back"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <div>
+                <h1 className="text-xl font-bold text-foreground font-work-sans">Health Chat</h1>
+                <p className="text-sm text-muted-foreground">AI-powered health assistant</p>
+              </div>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleVoice}
+              className={`touch-target ${voiceEnabled ? "bg-primary text-primary-foreground" : ""}`}
+              aria-label={voiceEnabled ? "Disable voice responses" : "Enable voice responses"}
+            >
+              {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Chat Messages */}
+      <div className="flex-1 container mx-auto px-4 py-6 max-w-4xl">
+        <div className="space-y-4 mb-6">
+          {messages.map((message) => (
+            <div key={message.id} className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+              {message.role === "assistant" && (
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                  <Bot className="w-4 h-4 text-primary-foreground" />
+                </div>
+              )}
+
+              <Card className={`max-w-[80%] ${message.role === "user" ? "bg-primary text-primary-foreground" : ""}`}>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap flex-1">{message.content}</p>
+                    {message.role === "assistant" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => speakMessage(message.content)}
+                        className="touch-target flex-shrink-0 h-8 w-8 p-0"
+                        aria-label="Listen to message"
+                      >
+                        <Volume2 className="w-3 h-3" />
+                      </Button>
+                    )}
+                  </div>
+                  <p className="text-xs opacity-70 mt-2">{message.timestamp.toLocaleTimeString()}</p>
+                </CardContent>
+              </Card>
+
+              {message.role === "user" && (
+                <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
+                  <User className="w-4 h-4 text-muted-foreground" />
+                </div>
+              )}
+            </div>
+          ))}
+
+          {isLoading && (
+            <div className="flex gap-3 justify-start">
+              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                <Bot className="w-4 h-4 text-primary-foreground" />
+              </div>
+              <Card className="max-w-[80%]">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" />
+                      <div
+                        className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                        style={{ animationDelay: "0.1s" }}
+                      />
+                      <div
+                        className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                        style={{ animationDelay: "0.2s" }}
+                      />
+                    </div>
+                    <span className="text-sm text-muted-foreground">Thinking...</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+
+      {/* Input Area */}
+      <div className="border-t border-border bg-card">
+        <div className="container mx-auto px-4 py-4 max-w-4xl">
+          <div className="flex gap-2">
+            <Input
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Ask me about your health concerns..."
+              className="flex-1 touch-target"
+              disabled={isLoading}
+            />
+            <Button
+              onClick={handleSendMessage}
+              disabled={!inputMessage.trim() || isLoading}
+              className="touch-target"
+              aria-label="Send message"
+            >
+              <Send className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* Quick Suggestions */}
+          <div className="flex flex-wrap gap-2 mt-3">
+            {[
+              "What are common cold symptoms?",
+              "How can I improve my sleep?",
+              "When should I see a doctor?",
+              "Tell me about healthy eating",
+            ].map((suggestion) => (
+              <Button
+                key={suggestion}
+                variant="outline"
+                size="sm"
+                onClick={() => setInputMessage(suggestion)}
+                className="text-xs touch-target"
+                disabled={isLoading}
+              >
+                {suggestion}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
