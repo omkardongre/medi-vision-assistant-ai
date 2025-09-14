@@ -140,12 +140,13 @@ export default function HealthRecordsPage() {
 
     try {
       await deleteHealthRecord(recordId);
+      
       // Remove from local state
       const updatedRecords = records.filter((r) => r.id !== recordId);
       setRecords(updatedRecords);
       
       // Update filtered records immediately
-      setFilteredRecords(updatedRecords.filter((record) => {
+      const newFilteredRecords = updatedRecords.filter((record) => {
         // Apply current filters to the updated records
         if (filter !== "all" && record.type !== filter) {
           return false;
@@ -158,7 +159,8 @@ export default function HealthRecordsPage() {
           );
         }
         return true;
-      }));
+      });
+      setFilteredRecords(newFilteredRecords);
       
       // Refresh health stats to update counts
       const updatedStats = await getHealthStats();

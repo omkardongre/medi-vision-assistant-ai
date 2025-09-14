@@ -92,6 +92,9 @@ CREATE POLICY "Users can insert own health records" ON public.health_records
 CREATE POLICY "Users can update own health records" ON public.health_records
   FOR UPDATE USING (auth.uid() = user_id);
 
+CREATE POLICY "Users can delete own health records" ON public.health_records
+  FOR DELETE USING (auth.uid() = user_id);
+
 -- Conversations: Users can only see and edit their own conversations
 CREATE POLICY "Users can view own conversations" ON public.conversations
   FOR SELECT USING (auth.uid() = user_id);
