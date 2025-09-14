@@ -26,7 +26,7 @@ import type { HealthAnalysisResponse } from "@/lib/gemini";
 
 export default function MedicationPage() {
   const router = useRouter();
-  const { speak } = useSpeech();
+  const { speak, hasError, isSpeaking } = useSpeech();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<HealthAnalysisResponse | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -128,11 +128,22 @@ export default function MedicationPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => speak(analysis.analysis)}
+                  onClick={() => {
+                    console.log(
+                      "Listen button clicked, analysis text:",
+                      analysis.analysis
+                    );
+                    speak(analysis.analysis);
+                  }}
                   className="touch-target"
+                  disabled={isSpeaking}
                 >
                   <Volume2 className="w-4 h-4 mr-2" />
-                  Listen
+                  {isSpeaking
+                    ? "Speaking..."
+                    : hasError
+                    ? "Retry Listen"
+                    : "Listen"}
                 </Button>
               </div>
               <CardDescription>
@@ -208,24 +219,36 @@ export default function MedicationPage() {
                             body: "This is a test reminder for your medication. Set up regular reminders in your phone's settings.",
                             icon: "/icon-192.png",
                           });
-                          speak("Test reminder sent! Please set up regular reminders in your phone's notification settings for daily medication reminders.");
+                          speak(
+                            "Test reminder sent! Please set up regular reminders in your phone's notification settings for daily medication reminders."
+                          );
                         } else if (Notification.permission !== "denied") {
-                          Notification.requestPermission().then(permission => {
-                            if (permission === "granted") {
-                              new Notification("MediVision Reminder", {
-                                body: "Medication reminder notifications are now enabled. Set up regular reminders in your phone's settings.",
-                                icon: "/icon-192.png",
-                              });
-                              speak("Notifications enabled! Please set up regular medication reminders in your phone's settings.");
-                            } else {
-                              speak("Please enable notifications in your browser settings and set up medication reminders in your phone's clock or calendar app.");
+                          Notification.requestPermission().then(
+                            (permission) => {
+                              if (permission === "granted") {
+                                new Notification("MediVision Reminder", {
+                                  body: "Medication reminder notifications are now enabled. Set up regular reminders in your phone's settings.",
+                                  icon: "/icon-192.png",
+                                });
+                                speak(
+                                  "Notifications enabled! Please set up regular medication reminders in your phone's settings."
+                                );
+                              } else {
+                                speak(
+                                  "Please enable notifications in your browser settings and set up medication reminders in your phone's clock or calendar app."
+                                );
+                              }
                             }
-                          });
+                          );
                         } else {
-                          speak("Notifications are blocked. Please set up medication reminders in your phone's clock app or calendar.");
+                          speak(
+                            "Notifications are blocked. Please set up medication reminders in your phone's clock app or calendar."
+                          );
                         }
                       } else {
-                        speak("Notifications not supported. Please set up medication reminders in your phone's clock app or calendar.");
+                        speak(
+                          "Notifications not supported. Please set up medication reminders in your phone's clock app or calendar."
+                        );
                       }
                     }}
                   >
