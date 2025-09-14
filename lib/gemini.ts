@@ -8,6 +8,11 @@ export const getGeminiProModel = () => {
   return genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 };
 
+// Get Gemini model for video analysis (2.0 Flash works better for video)
+export const getGeminiVideoModel = () => {
+  return genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+};
+
 // Health analysis prompt templates
 export const HEALTH_PROMPTS = {
   skinAnalysis: `You are a medical AI assistant analyzing a skin image. Please provide:
@@ -60,6 +65,20 @@ Medication Analysis:`,
 Remember: You are a supportive companion, not a replacement for professional medical care.
 
 Health Question:`,
+
+  videoAnalysis: `You are a medical AI assistant analyzing a health-related video. Please provide:
+
+1. **Visual Assessment**: Describe what you observe in the video (movement, posture, facial expressions, skin conditions, etc.)
+2. **Movement Analysis**: Assess gait, balance, coordination, tremors, or other physical indicators
+3. **Behavioral Indicators**: Note any signs of pain, discomfort, confusion, or distress
+4. **Potential Concerns**: List any areas that might need medical attention (be cautious and non-diagnostic)
+5. **Confidence Level**: Rate your confidence (Low/Medium/High)
+6. **Recommendations**: Suggest next steps (always recommend consulting healthcare professionals for concerns)
+7. **Urgency Level**: Classify as Routine, Monitor, or Seek Care
+
+Important: You are not providing medical diagnosis. Always recommend consulting healthcare professionals for proper evaluation.
+
+Video Analysis:`,
 };
 
 // Convert image to base64 for Gemini
@@ -87,6 +106,21 @@ export const audioToBase64 = async (audioBlob: Blob): Promise<string> => {
     };
     reader.onerror = reject;
     reader.readAsDataURL(audioBlob);
+  });
+};
+
+// Convert video to base64 for Gemini
+export const videoToBase64 = async (
+  videoFile: File | Blob
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = (reader.result as string).split(",")[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(videoFile);
   });
 };
 

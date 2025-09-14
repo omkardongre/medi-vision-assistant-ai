@@ -24,6 +24,9 @@ import {
   Square,
   Play,
   Pause,
+  Camera,
+  Video,
+  Upload,
 } from "lucide-react";
 import type { HealthAnalysisResponse } from "@/lib/gemini";
 
@@ -33,6 +36,9 @@ export default function SkinAnalysisPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<HealthAnalysisResponse | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [analysisMode, setAnalysisMode] = useState<"image" | "video">("image");
+  const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
 
   const handleImageCapture = (imageData: string) => {
     setCapturedImage(imageData);
@@ -63,6 +69,61 @@ export default function SkinAnalysisPage() {
     } catch (error) {
       console.error("Analysis failed:", error);
       speak("Sorry, the analysis failed. Please try again or contact support.");
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleVideoSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setSelectedVideo(file);
+      const url = URL.createObjectURL(file);
+      setVideoPreview(url);
+      speak("Video selected successfully. You can now analyze it.");
+    }
+  };
+
+  const handleVideoAnalyze = async () => {
+    if (!selectedVideo) return;
+
+    setIsAnalyzing(true);
+    speak("Analyzing your video. This may take a moment.");
+
+    try {
+      const formData = new FormData();
+      formData.append("video", selectedVideo);
+      formData.append("analysisType", "skin");
+
+      const response = await fetch("/api/analyze-video", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("supabase.auth.token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Video analysis failed");
+      }
+
+      const result = await response.json();
+      setAnalysis(result.structured);
+
+      // Speak the analysis summary
+      const urgencyMessage =
+        result.structured.urgency === "Seek Care"
+          ? "This requires medical attention."
+          : result.structured.urgency === "Monitor"
+          ? "Please monitor this area."
+          : "This appears routine.";
+
+      speak(
+        `Video analysis complete. Confidence level: ${result.structured.confidence}. ${urgencyMessage}`
+      );
+    } catch (error) {
+      console.error("Video analysis failed:", error);
+      speak("Sorry, the video analysis failed. Please try again or contact support.");
     } finally {
       setIsAnalyzing(false);
     }
@@ -118,18 +179,56 @@ export default function SkinAnalysisPage() {
       </header>
 
       <div className="container mx-auto px-4 py-6 space-y-6">
+        {/* Analysis Mode Toggle */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-work-sans">Analysis Mode</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-2">
+              <Button
+                variant={analysisMode === "image" ? "default" : "outline"}
+                onClick={() => setAnalysisMode("image")}
+                className="flex-1"
+              >
+                <Camera className="w-4 h-4 mr-2" />
+                Image Analysis
+              </Button>
+              <Button
+                variant={analysisMode === "video" ? "default" : "outline"}
+                onClick={() => setAnalysisMode("video")}
+                className="flex-1"
+              >
+                <Video className="w-4 h-4 mr-2" />
+                Video Analysis
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Instructions */}
         <Card>
           <CardHeader>
-            <CardTitle className="font-work-sans">How to Use</CardTitle>
+            <CardTitle className="font-work-sans">
+              {analysisMode === "image" ? "Image Analysis" : "Video Analysis"} - How to Use
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2 text-sm text-muted-foreground">
-              <p>
-                • Take a clear, well-lit photo of the area you want to analyze
-              </p>
-              <p>• Ensure the area fills most of the frame</p>
-              <p>• Avoid shadows and reflections</p>
+              {analysisMode === "image" ? (
+                <>
+                  <p>• Take a clear, well-lit photo of the area you want to analyze</p>
+                  <p>• Ensure the area fills most of the frame</p>
+                  <p>• Avoid shadows and reflections</p>
+                </>
+              ) : (
+                <>
+                  <p>• Record a clear, well-lit video of the area you want to analyze</p>
+                  <p>• Keep the camera steady and ensure good lighting</p>
+                  <p>• Show the area from different angles if possible</p>
+                  <p>• Maximum file size: 10MB</p>
+                </>
+              )}
               <p>
                 • This tool provides general guidance only - consult a
                 healthcare professional for medical advice
@@ -138,12 +237,70 @@ export default function SkinAnalysisPage() {
           </CardContent>
         </Card>
 
-        {/* Camera Component */}
-        <CameraCapture
-          onCapture={handleImageCapture}
-          onAnalyze={handleAnalyze}
-          isAnalyzing={isAnalyzing}
-        />
+        {/* Analysis Component */}
+        {analysisMode === "image" ? (
+          <CameraCapture
+            onCapture={handleImageCapture}
+            onAnalyze={handleAnalyze}
+            isAnalyzing={isAnalyzing}
+          />
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-work-sans">Video Upload</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                <input
+                  type="file"
+                  accept="video/*"
+                  onChange={handleVideoSelect}
+                  className="hidden"
+                  id="video-upload"
+                />
+                <label
+                  htmlFor="video-upload"
+                  className="cursor-pointer flex flex-col items-center space-y-2"
+                >
+                  <Upload className="w-8 h-8 text-muted-foreground" />
+                  <span className="text-sm font-medium">
+                    {selectedVideo ? "Change Video" : "Select Video File"}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    MP4, MOV, AVI (max 10MB)
+                  </span>
+                </label>
+              </div>
+
+              {videoPreview && (
+                <div className="space-y-4">
+                  <video
+                    src={videoPreview}
+                    controls
+                    className="w-full max-w-md mx-auto rounded-lg"
+                  />
+                  <Button
+                    onClick={handleVideoAnalyze}
+                    disabled={isAnalyzing}
+                    className="w-full"
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                        Analyzing Video...
+                      </>
+                    ) : (
+                      <>
+                        <Video className="w-4 h-4 mr-2" />
+                        Analyze Video
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Analysis Results */}
         {analysis && (

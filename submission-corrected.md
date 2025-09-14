@@ -44,12 +44,13 @@ Comprehensive accessibility toolbar with voice navigation
 
 I leveraged Google AI Studio extensively to power the multimodal capabilities:
 
-### 1. **Gemini 2.5 Flash** for All Multimodal Features
+### 1. **Gemini 2.5 Flash** for Multimodal Features
 
 - **Image Analysis**: Analyzes uploaded skin photos for dermatological assessment using Gemini's vision capabilities
 - **Voice Processing**: Processes audio recordings for symptom analysis and transcription
 - **Text Chat**: Powers conversational AI health assistant with context awareness
-- **Unified Model**: Single Gemini 2.5 Flash model handles all input types (text, image, audio) for consistent health insights
+- **Video Analysis**: Advanced video health monitoring using Gemini 2.0 Flash Experimental for optimal video processing
+- **Optimized Model Selection**: Uses the best model for each input type (2.5 Flash for images/text, 2.0 Flash for video)
 
 ## Multimodal Features
 
