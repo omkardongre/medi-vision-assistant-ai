@@ -35,7 +35,7 @@
 
 #### 🤖 **Advanced Multimodal AI**
 
-- **Google Gemini 2.0 Flash** integration for health analysis
+- **Google Gemini 2.5 Flash** integration for health analysis
 - **Live API streaming** for real-time responses
 - **Image analysis** for skin conditions and medication scanning
 - **Voice processing** for accessibility and ease of use
@@ -65,10 +65,10 @@
 
 | Feature                | Description                                        | AI Model          |
 | ---------------------- | -------------------------------------------------- | ----------------- |
-| **Skin Analysis**      | Analyze photos of skin conditions, rashes, wounds  | Gemini 2.0 Vision |
-| **Medication Scanner** | Identify pills, check interactions, verify dosages | Gemini 2.0 Vision |
-| **Voice Logger**       | Process voice descriptions of symptoms             | Gemini 2.0 Audio  |
-| **Health Chat**        | Intelligent health conversations with context      | Gemini 2.0 Flash  |
+| **Skin Analysis**      | Analyze photos of skin conditions, rashes, wounds  | Gemini 2.5 Flash |
+| **Medication Scanner** | Identify pills, check interactions, verify dosages | Gemini 2.5 Flash |
+| **Voice Logger**       | Process voice descriptions of symptoms             | Gemini 2.5 Flash |
+| **Health Chat**        | Intelligent health conversations with context      | Gemini 2.5 Flash |
 
 ### 🚨 **Emergency Intelligence**
 
@@ -107,7 +107,7 @@
 
 ### **AI & APIs**
 
-- **Google Gemini 2.0 Flash** - Advanced LLM for health analysis
+- **Google Gemini 2.5 Flash** - Advanced LLM for health analysis
 - **Google Live API** - Real-time streaming responses
 - **Web Speech API** - Voice recognition and synthesis
 - **MediaDevices API** - Camera and microphone access
@@ -241,7 +241,7 @@ npm start
 
 ### **Technical Excellence**
 
-- **Advanced AI Integration**: Latest Gemini 2.0 models with streaming
+- **Advanced AI Integration**: Latest Gemini 2.5 models with streaming
 - **Real-time Intelligence**: Emergency detection during live conversation
 - **Production-Ready**: PWA with offline functionality and background sync
 - **Accessibility Leadership**: Voice-first design with full WCAG compliance

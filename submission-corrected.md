@@ -53,13 +53,13 @@ I leveraged Google AI Studio extensively to power the multimodal capabilities:
 - Provides detailed health assessments with confidence scores and medical recommendations
 - Supports multiple video formats (MP4, MOV, AVI, WebM) with automatic optimization
 
-### 2. Gemini 2.0 Flash Experimental for Skin Analysis
+### 2. Gemini 2.5 Flash for Skin Analysis
 
 - Integrated Gemini's vision capabilities to analyze uploaded skin photos
 - Provides detailed assessments of skin conditions, moles, rashes, and other dermatological concerns
 - Returns structured health insights with confidence scores and recommendations
 
-### 3. Gemini 2.0 Flash Experimental for Health Chat
+### 3. Gemini 2.5 Flash for Health Chat
 
 - Powers the conversational AI health assistant
 - Processes natural language health questions and provides evidence-based responses
@@ -113,7 +113,7 @@ I leveraged Google AI Studio extensively to power the multimodal capabilities:
 ## Technical Implementation
 
 - Frontend: Next.js 15 with TypeScript and Tailwind CSS
-- AI Integration: Google AI Studio with Gemini 2.5 Flash (video) and Gemini 2.0 Flash Experimental (image/text)
+- AI Integration: Google AI Studio with Gemini 2.5 Flash (video, image, text, audio)
 - Voice Processing: Web Speech API for speech-to-text and text-to-speech
 - Image Processing: Canvas API for image optimization and preprocessing
 - Deployment: Google Cloud Run with automatic scaling
