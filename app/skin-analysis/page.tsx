@@ -301,11 +301,13 @@ export default function SkinAnalysisPage() {
                       onLoadedData={() => console.log("🎥 Video loaded successfully")}
                       onError={(e) => console.error("🎥 Video load error:", e)}
                       onCanPlay={() => console.log("🎥 Video can play")}
-                      preload="metadata"
+                      preload="auto"
+                      playsInline
+                      style={{ 
+                        minHeight: '200px',
+                        objectFit: 'contain'
+                      }}
                     />
-                    <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-sm font-medium">
-                      ✓ Video Ready
-                    </div>
                   </div>
                   <Button
                     onClick={handleVideoAnalyze}
