@@ -248,14 +248,14 @@ export function ImagenGenerator({ medicationData, onGenerated }: ImagenGenerator
             </div>
 
             <p className="text-sm text-muted-foreground text-center">
-              AI-generated health infographic {isFallback ? '(Fallback Implementation)' : 'using Google Imagen'}
+              AI-generated health infographic {isFallback ? '(Fallback Implementation)' : 'using Google Imagen 4'}
             </p>
           </div>
         )}
 
         {/* Info */}
         <div className="text-xs text-muted-foreground bg-gray-50 p-3 rounded-lg">
-          <p><strong>Note:</strong> This feature uses Google Imagen AI to generate professional health infographics. 
+          <p><strong>Note:</strong> This feature uses Google Imagen 4 AI to generate professional health infographics. 
           Generated content is for informational purposes only and should not replace professional medical advice.</p>
         </div>
       </CardContent>

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Note: Imagen API integration requires proper setup with Google Cloud
-// For now, we'll create a fallback that generates placeholder infographics
-// This demonstrates the concept while we work on proper Imagen integration
+// Initialize Google AI with Imagen 4
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || "");
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,7 +71,50 @@ export async function POST(request: NextRequest) {
         enhancedPrompt = prompt;
     }
 
-    // Create a simple infographic using SVG (works in browser)
+    // Use Imagen 4 to generate the infographic
+    try {
+      const model = genAI.getGenerativeModel({
+        model: "imagen-4.0-generate-001", // Using the latest Imagen 4 model
+      });
+
+      const result = await model.generateContent({
+        contents: [
+          {
+            role: "user",
+            parts: [
+              {
+                text: enhancedPrompt,
+              },
+            ],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 1024,
+        },
+      });
+
+      const response = await result.response;
+      const generatedImage =
+        response.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+
+      if (generatedImage) {
+        return NextResponse.json({
+          success: true,
+          imageData: generatedImage.data,
+          mimeType: generatedImage.mimeType,
+          prompt: enhancedPrompt,
+          type: type,
+          fallback: false, // Real Imagen 4 generation
+        });
+      }
+    } catch (imagenError) {
+      console.error("Imagen 4 generation failed, using fallback:", imagenError);
+    }
+
+    // Fallback: Create SVG infographic if Imagen 4 fails
     const svgContent = `
       <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -132,8 +175,7 @@ export async function POST(request: NextRequest) {
       prompt: enhancedPrompt,
       type: type,
       fallback: true, // Indicate this is a fallback implementation
-      message:
-        "Fallback infographic generated. Imagen integration in progress.",
+      message: "Imagen 4 unavailable, using fallback SVG generation.",
     });
   } catch (error) {
     console.error("Infographic generation error:", error);
