@@ -232,7 +232,7 @@ export async function saveConversation(title: string, messages: any[], authToken
     }
 
     const { data, error } = await supabase
-      .from("chat_conversations")
+      .from("conversations")
       .insert([
         {
           user_id: user.id,
@@ -284,7 +284,7 @@ export async function updateConversation(id: string, messages: any[], authToken?
     }
 
     const { data, error } = await supabase
-      .from("chat_conversations")
+      .from("conversations")
       .update({
         messages,
         updated_at: new Date().toISOString(),
@@ -323,7 +323,7 @@ export async function getConversations(userId?: string) {
     }
 
     const { data, error } = await supabase
-      .from("chat_conversations")
+      .from("conversations")
       .select("*")
       .eq("user_id", userId)
       .order("updated_at", { ascending: false });
