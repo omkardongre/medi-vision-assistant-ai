@@ -14,7 +14,10 @@ import { Badge } from "@/components/ui/badge";
 import { CameraCapture } from "@/components/camera-capture";
 import { apiClient } from "@/lib/api-client";
 import { useSpeech } from "@/hooks/use-speech";
-import { formatAnalysisText, parseAnalysisSections } from "@/lib/text-formatter";
+import {
+  formatAnalysisText,
+  parseAnalysisSections,
+} from "@/lib/text-formatter";
 import {
   ArrowLeft,
   AlertTriangle,
@@ -27,18 +30,22 @@ import {
   Camera,
   Video,
   Upload,
+  Maximize,
 } from "lucide-react";
 import type { HealthAnalysisResponse } from "@/lib/gemini";
 
 export default function SkinAnalysisPage() {
   const router = useRouter();
-  const { speak, hasError, isSpeaking, isPaused, pause, resume, stop } = useSpeech();
+  const { speak, hasError, isSpeaking, isPaused, pause, resume, stop } =
+    useSpeech();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<HealthAnalysisResponse | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [analysisMode, setAnalysisMode] = useState<"image" | "video">("image");
   const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
+  const [videoRef, setVideoRef] = useState<HTMLVideoElement | null>(null);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
   // Cleanup video preview URL when component unmounts
   useEffect(() => {
@@ -89,16 +96,17 @@ export default function SkinAnalysisPage() {
       console.log("🎥 Video file selected:", {
         name: file.name,
         type: file.type,
-        size: file.size
+        size: file.size,
       });
-      
+
       setSelectedVideo(file);
-      
+      setIsVideoLoaded(false); // Reset video loaded state
+
       // Create object URL for video preview
       const url = URL.createObjectURL(file);
       console.log("🎥 Video preview URL created:", url);
       setVideoPreview(url);
-      
+
       speak("Video selected successfully. You can now analyze it.");
     }
   };
@@ -118,7 +126,9 @@ export default function SkinAnalysisPage() {
         method: "POST",
         body: formData,
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("supabase.auth.token")}`,
+          Authorization: `Bearer ${localStorage.getItem(
+            "supabase.auth.token"
+          )}`,
         },
       });
 
@@ -142,9 +152,23 @@ export default function SkinAnalysisPage() {
       );
     } catch (error) {
       console.error("Video analysis failed:", error);
-      speak("Sorry, the video analysis failed. Please try again or contact support.");
+      speak(
+        "Sorry, the video analysis failed. Please try again or contact support."
+      );
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const handleFullscreen = () => {
+    if (videoRef) {
+      if (videoRef.requestFullscreen) {
+        videoRef.requestFullscreen();
+      } else if ((videoRef as any).webkitRequestFullscreen) {
+        (videoRef as any).webkitRequestFullscreen();
+      } else if ((videoRef as any).msRequestFullscreen) {
+        (videoRef as any).msRequestFullscreen();
+      }
     }
   };
 
@@ -229,20 +253,27 @@ export default function SkinAnalysisPage() {
         <Card>
           <CardHeader>
             <CardTitle className="font-work-sans">
-              {analysisMode === "image" ? "Image Analysis" : "Video Analysis"} - How to Use
+              {analysisMode === "image" ? "Image Analysis" : "Video Analysis"} -
+              How to Use
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2 text-sm text-muted-foreground">
               {analysisMode === "image" ? (
                 <>
-                  <p>• Take a clear, well-lit photo of the area you want to analyze</p>
+                  <p>
+                    • Take a clear, well-lit photo of the area you want to
+                    analyze
+                  </p>
                   <p>• Ensure the area fills most of the frame</p>
                   <p>• Avoid shadows and reflections</p>
                 </>
               ) : (
                 <>
-                  <p>• Record a clear, well-lit video of the area you want to analyze</p>
+                  <p>
+                    • Record a clear, well-lit video of the area you want to
+                    analyze
+                  </p>
                   <p>• Keep the camera steady and ensure good lighting</p>
                   <p>• Show the area from different angles if possible</p>
                   <p>• Maximum file size: 25MB</p>
@@ -295,19 +326,41 @@ export default function SkinAnalysisPage() {
                 <div className="space-y-4">
                   <div className="relative">
                     <video
+                      ref={setVideoRef}
                       src={videoPreview}
                       controls
                       className="w-full max-w-md mx-auto rounded-lg border-2 border-border"
-                      onLoadedData={() => console.log("🎥 Video loaded successfully")}
+                      onLoadedData={() => {
+                        console.log("🎥 Video loaded successfully");
+                        setIsVideoLoaded(true);
+                      }}
                       onError={(e) => console.error("🎥 Video load error:", e)}
-                      onCanPlay={() => console.log("🎥 Video can play")}
+                      onCanPlay={() => {
+                        if (!isVideoLoaded) {
+                          console.log("🎥 Video can play");
+                          setIsVideoLoaded(true);
+                        }
+                      }}
+                      onLoadedMetadata={() => {
+                        console.log("🎥 Video metadata loaded");
+                      }}
                       preload="auto"
                       playsInline
-                      style={{ 
-                        minHeight: '200px',
-                        objectFit: 'contain'
+                      muted={false}
+                      style={{
+                        minHeight: "200px",
+                        objectFit: "contain",
+                        backgroundColor: "#000",
                       }}
                     />
+                    {/* Fullscreen button */}
+                    <button
+                      onClick={handleFullscreen}
+                      className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all z-10"
+                      title="Fullscreen"
+                    >
+                      <Maximize className="w-4 h-4" />
+                    </button>
                   </div>
                   <Button
                     onClick={handleVideoAnalyze}
@@ -340,59 +393,63 @@ export default function SkinAnalysisPage() {
                 <CardTitle className="font-work-sans">
                   Analysis Results
                 </CardTitle>
-                 <div className="flex gap-2">
-                   <Button
-                     variant="outline"
-                     size="sm"
-                     onClick={() => {
-                       if (isPaused) {
-                         resume();
-                       } else {
-                         console.log(
-                           "Listen button clicked, analysis text:",
-                           analysis.analysis
-                         );
-                         speak(formatAnalysisText(analysis.analysis));
-                       }
-                     }}
-                     className="touch-target"
-                     disabled={isSpeaking && !isPaused}
-                   >
-                     {isPaused ? (
-                       <>
-                         <Play className="w-4 h-4 mr-2" />
-                         Resume
-                       </>
-                     ) : (
-                       <>
-                         <Volume2 className="w-4 h-4 mr-2" />
-                         {isSpeaking ? "Speaking..." : hasError ? "Retry Listen" : "Listen"}
-                       </>
-                     )}
-                   </Button>
-                   {isSpeaking && !isPaused && (
-                     <Button
-                       variant="outline"
-                       size="sm"
-                       onClick={pause}
-                       className="touch-target"
-                     >
-                       <Pause className="w-4 h-4 mr-2" />
-                       Pause
-                     </Button>
-                   )}
-                   {(isSpeaking || isPaused) && (
-                     <Button
-                       variant="outline"
-                       size="sm"
-                       onClick={stop}
-                       className="touch-target"
-                     >
-                       <Square className="w-4 h-4 mr-2" />
-                       Stop
-                     </Button>
-                   )}
-                 </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (isPaused) {
+                        resume();
+                      } else {
+                        console.log(
+                          "Listen button clicked, analysis text:",
+                          analysis.analysis
+                        );
+                        speak(formatAnalysisText(analysis.analysis));
+                      }
+                    }}
+                    className="touch-target"
+                    disabled={isSpeaking && !isPaused}
+                  >
+                    {isPaused ? (
+                      <>
+                        <Play className="w-4 h-4 mr-2" />
+                        Resume
+                      </>
+                    ) : (
+                      <>
+                        <Volume2 className="w-4 h-4 mr-2" />
+                        {isSpeaking
+                          ? "Speaking..."
+                          : hasError
+                          ? "Retry Listen"
+                          : "Listen"}
+                      </>
+                    )}
+                  </Button>
+                  {isSpeaking && !isPaused && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={pause}
+                      className="touch-target"
+                    >
+                      <Pause className="w-4 h-4 mr-2" />
+                      Pause
+                    </Button>
+                  )}
+                  {(isSpeaking || isPaused) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={stop}
+                      className="touch-target"
+                    >
+                      <Square className="w-4 h-4 mr-2" />
+                      Stop
+                    </Button>
+                  )}
+                </div>
               </div>
               <CardDescription>
                 AI-powered assessment based on your photo

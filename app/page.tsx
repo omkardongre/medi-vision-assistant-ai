@@ -113,31 +113,40 @@ export default function HomePage() {
 
   const toggleVoice = async () => {
     setIsVoiceEnabled(!isVoiceEnabled);
-    
+
     if (!isVoiceEnabled) {
       // Enable voice navigation
       speak("Voice navigation enabled. Starting voice recognition...");
-      
+
       // Check browser support
-      if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
-        alert("Speech recognition not supported in this browser. Please use Chrome or Edge.");
+      if (
+        !("webkitSpeechRecognition" in window || "SpeechRecognition" in window)
+      ) {
+        alert(
+          "Speech recognition not supported in this browser. Please use Chrome or Edge."
+        );
         setIsVoiceEnabled(false);
         return;
       }
 
       // Check microphone permissions
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
         stream.getTracks().forEach((track) => track.stop());
         console.log("🎤 Microphone permission granted");
       } catch (error) {
-        alert("Microphone permission required. Please allow microphone access.");
+        alert(
+          "Microphone permission required. Please allow microphone access."
+        );
         setIsVoiceEnabled(false);
         return;
       }
 
       // Start voice recognition
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
@@ -145,7 +154,9 @@ export default function HomePage() {
 
       recognition.onstart = () => {
         console.log("🎤 Voice recognition started");
-        speak("Listening... Say a command like 'go home', 'skin analysis', 'help', etc.");
+        speak(
+          "Listening... Say a command like 'go home', 'skin analysis', 'help', etc."
+        );
       };
 
       recognition.onresult = (event) => {
@@ -193,7 +204,9 @@ export default function HomePage() {
           normalizedTranscript.includes("call for help") ||
           normalizedTranscript.includes("urgent")
         ) {
-          alert("Emergency services would be contacted in a real implementation. This is a demo.");
+          alert(
+            "Emergency services would be contacted in a real implementation. This is a demo."
+          );
         } else if (
           normalizedTranscript.includes("go back") ||
           normalizedTranscript.includes("previous page") ||
@@ -206,9 +219,13 @@ export default function HomePage() {
           normalizedTranscript.includes("voice commands") ||
           normalizedTranscript.includes("commands")
         ) {
-          alert("Available commands: go home, skin analysis, voice logger, medication, health chat, emergency, go back");
+          alert(
+            "Available commands: go home, skin analysis, voice logger, medication, health chat, emergency, go back"
+          );
         } else {
-          speak(`I didn't understand "${transcript}". Try saying: go home, skin analysis, voice logger, medication, health chat, emergency, or help`);
+          speak(
+            `I didn't understand "${transcript}". Try saying: go home, skin analysis, voice logger, medication, health chat, emergency, or help`
+          );
         }
       };
 
