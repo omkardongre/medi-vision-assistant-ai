@@ -85,8 +85,9 @@ export class MediVisionAPI {
 
   async sendChatMessage(
     message: string,
-    conversationHistory: any[] = []
-  ): Promise<{ message: string; emergency?: any }> {
+    conversationHistory: any[] = [],
+    conversationId?: string | null
+  ): Promise<{ message: string; emergency?: any; conversationId?: string }> {
     const authHeaders = await this.getAuthHeaders();
     const response = await fetch(`${this.baseUrl}/chat`, {
       method: "POST",
@@ -94,7 +95,7 @@ export class MediVisionAPI {
         "Content-Type": "application/json",
         ...authHeaders,
       },
-      body: JSON.stringify({ message, conversationHistory }),
+      body: JSON.stringify({ message, conversationHistory, conversationId }),
     });
 
     if (!response.ok) {
@@ -109,6 +110,7 @@ export class MediVisionAPI {
     return {
       message: data.response,
       emergency: data.analysis?.emergencyAlert,
+      conversationId: data.conversationId,
     };
   }
 

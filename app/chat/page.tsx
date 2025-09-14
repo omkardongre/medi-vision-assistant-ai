@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { apiClient } from "@/lib/api-client";
 import { useSpeech } from "@/hooks/use-speech";
 import { EmergencyAlertDisplay } from "@/components/emergency-alert-display";
+import { formatAnalysisText } from "@/lib/text-formatter";
+import { getConversations } from "@/lib/health-records";
 import { ArrowLeft, Send, Volume2, VolumeX, Bot, User } from "lucide-react";
 
 interface Message {
@@ -35,6 +37,8 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [emergencyAlert, setEmergencyAlert] = useState<any>(null);
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [isLoadingConversations, setIsLoadingConversations] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -44,6 +48,39 @@ export default function ChatPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Load conversations on page load
+  useEffect(() => {
+    const loadConversations = async () => {
+      try {
+        setIsLoadingConversations(true);
+        const conversations = await getConversations();
+        
+        if (conversations && conversations.length > 0) {
+          // Load the most recent conversation
+          const latestConversation = conversations[0];
+          setCurrentConversationId(latestConversation.id);
+          
+          // Convert conversation messages to Message format
+          const conversationMessages: Message[] = latestConversation.messages.map((msg: any, index: number) => ({
+            id: `${latestConversation.id}-${index}`,
+            role: msg.role,
+            content: msg.role === 'assistant' ? formatAnalysisText(msg.content) : msg.content,
+            timestamp: new Date(msg.timestamp),
+          }));
+          
+          setMessages(conversationMessages);
+        }
+      } catch (error) {
+        console.error("Error loading conversations:", error);
+        // Keep default welcome message if loading fails
+      } finally {
+        setIsLoadingConversations(false);
+      }
+    };
+
+    loadConversations();
+  }, []);
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
@@ -60,16 +97,21 @@ export default function ChatPage() {
     setIsLoading(true);
 
     try {
-      const response = await apiClient.sendChatMessage(inputMessage, messages);
+      const response = await apiClient.sendChatMessage(inputMessage, messages, currentConversationId);
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: response.message,
+        content: formatAnalysisText(response.message),
         timestamp: new Date(),
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
+
+      // Update conversation ID if this is a new conversation
+      if (response.conversationId && !currentConversationId) {
+        setCurrentConversationId(response.conversationId);
+      }
 
       // Check for emergency detection
       if (response.emergency) {
@@ -79,7 +121,7 @@ export default function ChatPage() {
       } else {
         // Speak the response if voice is enabled
         if (voiceEnabled && response.message && response.message.trim()) {
-          speak(response.message);
+          speak(formatAnalysisText(response.message));
         }
       }
     } catch (error) {
@@ -170,7 +212,12 @@ export default function ChatPage() {
 
       {/* Chat Messages */}
       <div className="flex-1 container mx-auto px-4 py-6 max-w-4xl">
-        <div className="space-y-4 mb-6">
+        {isLoadingConversations ? (
+          <div className="flex items-center justify-center h-32">
+            <div className="text-muted-foreground">Loading chat history...</div>
+          </div>
+        ) : (
+          <div className="space-y-4 mb-6">
           {messages.map((message) => (
             <div
               key={message.id}
@@ -193,9 +240,11 @@ export default function ChatPage() {
               >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap flex-1">
-                      {message.content}
-                    </p>
+                    <div className="prose prose-sm prose-gray max-w-none flex-1">
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap m-0">
+                        {message.content}
+                      </p>
+                    </div>
                     {message.role === "assistant" && (
                       <Button
                         variant="ghost"
@@ -251,7 +300,8 @@ export default function ChatPage() {
           )}
 
           <div ref={messagesEndRef} />
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Input Area */}
