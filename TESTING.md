@@ -172,7 +172,7 @@ curl -X POST http://localhost:3000/api/analyze-image \
 
 ## 💊 **Medication Scanner Testing**
 
-### **Test 3.1: Medication Image Analysis** - Status: [ ] PASS [ ] FAIL [ ] SKIP
+### **Test 3.1: Medication Image Analysis** - Status: [X] PASS [ ] FAIL [ ] SKIP
 
 1. **Prerequisites**: Sign in
 2. Navigate to `/medication`

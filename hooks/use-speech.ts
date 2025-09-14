@@ -15,8 +15,11 @@ export function useSpeech(options: UseSpeechOptions = {}) {
     () => typeof window !== "undefined" && "speechSynthesis" in window
   );
   const [hasError, setHasError] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const currentTextRef = useRef<string>("");
+  const currentCharIndexRef = useRef<number>(0);
 
   // Cleanup on unmount and page unload
   useEffect(() => {
@@ -57,6 +60,18 @@ export function useSpeech(options: UseSpeechOptions = {}) {
         return;
       }
 
+      // If resuming from pause, continue from where we left off
+      if (isPaused && currentTextRef.current === text) {
+        console.log("Resuming speech from pause");
+        speechSynthesis.resume();
+        setIsPaused(false);
+        return;
+      }
+
+      // Store current text and reset position
+      currentTextRef.current = text;
+      currentCharIndexRef.current = 0;
+
       // Cancel any ongoing speech
       speechSynthesis.cancel();
 
@@ -71,14 +86,18 @@ export function useSpeech(options: UseSpeechOptions = {}) {
         utterance.onstart = () => {
           console.log("Speech started");
           setIsSpeaking(true);
+          setIsPaused(false);
         };
         utterance.onend = () => {
           console.log("Speech ended");
           setIsSpeaking(false);
+          setIsPaused(false);
+          currentCharIndexRef.current = 0;
         };
         utterance.onerror = (event) => {
           console.error("Speech error:", event.error || "Unknown error");
           setIsSpeaking(false);
+          setIsPaused(false);
           setHasError(true);
           
           // Try fallback approach only for synthesis-failed errors
@@ -95,12 +114,18 @@ export function useSpeech(options: UseSpeechOptions = {}) {
                 
                 fallbackUtterance.onstart = () => {
                   setIsSpeaking(true);
+                  setIsPaused(false);
                   setHasError(false);
                 };
-                fallbackUtterance.onend = () => setIsSpeaking(false);
+                fallbackUtterance.onend = () => {
+                  setIsSpeaking(false);
+                  setIsPaused(false);
+                  currentCharIndexRef.current = 0;
+                };
                 fallbackUtterance.onerror = (fallbackEvent) => {
                   console.error("Fallback speech also failed:", fallbackEvent.error || "Unknown error");
                   setIsSpeaking(false);
+                  setIsPaused(false);
                   setHasError(true);
                 };
                 
@@ -108,6 +133,7 @@ export function useSpeech(options: UseSpeechOptions = {}) {
               } catch (fallbackError) {
                 console.error("Fallback speech error:", fallbackError);
                 setIsSpeaking(false);
+                setIsPaused(false);
                 setHasError(true);
               }
             }, 100);
@@ -130,7 +156,7 @@ export function useSpeech(options: UseSpeechOptions = {}) {
         speakText();
       }
     },
-    [isSupported, options]
+    [isSupported, options, isPaused]
   );
 
   const stop = useCallback(() => {
@@ -138,26 +164,41 @@ export function useSpeech(options: UseSpeechOptions = {}) {
       try {
         speechSynthesis.cancel();
         setIsSpeaking(false);
+        setIsPaused(false);
         setHasError(false);
+        currentCharIndexRef.current = 0;
         console.log("Speech stopped");
       } catch (error) {
         console.error("Error stopping speech:", error);
         setIsSpeaking(false);
+        setIsPaused(false);
       }
     }
   }, [isSupported]);
 
   const pause = useCallback(() => {
     if (isSupported && isSpeaking) {
-      speechSynthesis.pause();
+      try {
+        speechSynthesis.pause();
+        setIsPaused(true);
+        console.log("Speech paused");
+      } catch (error) {
+        console.error("Error pausing speech:", error);
+      }
     }
   }, [isSupported, isSpeaking]);
 
   const resume = useCallback(() => {
-    if (isSupported) {
-      speechSynthesis.resume();
+    if (isSupported && isPaused) {
+      try {
+        speechSynthesis.resume();
+        setIsPaused(false);
+        console.log("Speech resumed");
+      } catch (error) {
+        console.error("Error resuming speech:", error);
+      }
     }
-  }, [isSupported]);
+  }, [isSupported, isPaused]);
 
   return {
     speak,
@@ -165,6 +206,7 @@ export function useSpeech(options: UseSpeechOptions = {}) {
     pause,
     resume,
     isSpeaking,
+    isPaused,
     isSupported,
     hasError,
   };

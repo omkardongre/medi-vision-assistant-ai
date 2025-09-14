@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { CameraCapture } from "@/components/camera-capture";
 import { apiClient } from "@/lib/api-client";
 import { useSpeech } from "@/hooks/use-speech";
+import { formatAnalysisText, parseAnalysisSections } from "@/lib/text-formatter";
 import {
   ArrowLeft,
   AlertTriangle,
@@ -21,12 +22,14 @@ import {
   Clock,
   Volume2,
   Square,
+  Play,
+  Pause,
 } from "lucide-react";
 import type { HealthAnalysisResponse } from "@/lib/gemini";
 
 export default function SkinAnalysisPage() {
   const router = useRouter();
-  const { speak, hasError, isSpeaking, stop } = useSpeech();
+  const { speak, hasError, isSpeaking, isPaused, pause, resume, stop } = useSpeech();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<HealthAnalysisResponse | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -155,19 +158,43 @@ export default function SkinAnalysisPage() {
                      variant="outline"
                      size="sm"
                      onClick={() => {
-                       console.log(
-                         "Listen button clicked, analysis text:",
-                         analysis.analysis
-                       );
-                       speak(analysis.analysis);
+                       if (isPaused) {
+                         resume();
+                       } else {
+                         console.log(
+                           "Listen button clicked, analysis text:",
+                           analysis.analysis
+                         );
+                         speak(analysis.analysis);
+                       }
                      }}
                      className="touch-target"
-                     disabled={isSpeaking}
+                     disabled={isSpeaking && !isPaused}
                    >
-                     <Volume2 className="w-4 h-4 mr-2" />
-                     {isSpeaking ? "Speaking..." : hasError ? "Retry Listen" : "Listen"}
+                     {isPaused ? (
+                       <>
+                         <Play className="w-4 h-4 mr-2" />
+                         Resume
+                       </>
+                     ) : (
+                       <>
+                         <Volume2 className="w-4 h-4 mr-2" />
+                         {isSpeaking ? "Speaking..." : hasError ? "Retry Listen" : "Listen"}
+                       </>
+                     )}
                    </Button>
-                   {isSpeaking && (
+                   {isSpeaking && !isPaused && (
+                     <Button
+                       variant="outline"
+                       size="sm"
+                       onClick={pause}
+                       className="touch-target"
+                     >
+                       <Pause className="w-4 h-4 mr-2" />
+                       Pause
+                     </Button>
+                   )}
+                   {(isSpeaking || isPaused) && (
                      <Button
                        variant="outline"
                        size="sm"
@@ -198,12 +225,38 @@ export default function SkinAnalysisPage() {
 
               {/* Analysis Text */}
               <div className="bg-muted p-4 rounded-lg">
-                <h4 className="font-semibold mb-2 font-work-sans">
+                <h4 className="font-semibold mb-3 font-work-sans text-lg">
                   Assessment
                 </h4>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                  {analysis.analysis}
-                </p>
+                {(() => {
+                  const sections = parseAnalysisSections(analysis.analysis);
+                  if (sections.length > 0) {
+                    return (
+                      <div className="space-y-4">
+                        {sections.map((section, index) => (
+                          <div key={index} className="border-l-4 border-green-200 pl-4">
+                            <h5 className="font-semibold text-base mb-2 text-green-800">
+                              {section.title}
+                            </h5>
+                            <div className="text-sm leading-relaxed text-gray-700 space-y-2">
+                              {section.content.split('\n').map((line, lineIndex) => (
+                                <p key={lineIndex} className={line.trim() ? '' : 'h-2'}>
+                                  {line.trim()}
+                                </p>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                        {formatAnalysisText(analysis.analysis)}
+                      </p>
+                    );
+                  }
+                })()}
               </div>
 
               {/* Recommendations */}
