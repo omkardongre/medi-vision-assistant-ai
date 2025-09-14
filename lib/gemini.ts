@@ -8,11 +8,6 @@ export const getGeminiProModel = () => {
   return genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 };
 
-// Get Gemini model for video analysis (2.0 Flash works better for video)
-export const getGeminiVideoModel = () => {
-  return genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
-};
-
 // Health analysis prompt templates
 export const HEALTH_PROMPTS = {
   skinAnalysis: `You are a medical AI assistant analyzing a skin image. Please provide:

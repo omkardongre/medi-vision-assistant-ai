@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  getGeminiVideoModel,
+  getGeminiProModel,
   videoToBase64,
   HEALTH_PROMPTS,
   parseHealthAnalysis,
@@ -66,10 +66,10 @@ export async function POST(request: NextRequest) {
       prompt = `Focus on behavioral indicators: signs of pain, confusion, distress, or cognitive changes. ${HEALTH_PROMPTS.videoAnalysis}`;
     }
 
-    // Initialize Gemini model (using 2.0 Flash for video analysis)
-    const model = getGeminiVideoModel();
+    // Initialize Gemini model (using 2.5 Flash for competition compliance)
+    const model = getGeminiProModel();
 
-    // Generate content with video
+    // Generate content with video using Gemini 2.5 Flash (competition compliant)
     const result = await model.generateContent([
       prompt,
       {

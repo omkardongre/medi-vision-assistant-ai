@@ -44,13 +44,13 @@ Comprehensive accessibility toolbar with voice navigation
 
 I leveraged Google AI Studio extensively to power the multimodal capabilities:
 
-### 1. **Gemini 2.5 Flash** for Multimodal Features
+### 1. **Gemini 2.5 Flash** for All Multimodal Features
 
 - **Image Analysis**: Analyzes uploaded skin photos for dermatological assessment using Gemini's vision capabilities
 - **Voice Processing**: Processes audio recordings for symptom analysis and transcription
 - **Text Chat**: Powers conversational AI health assistant with context awareness
-- **Video Analysis**: Advanced video health monitoring using Gemini 2.0 Flash Experimental for optimal video processing
-- **Optimized Model Selection**: Uses the best model for each input type (2.5 Flash for images/text, 2.0 Flash for video)
+- **Video Analysis**: Advanced video health monitoring for movement, behavior, and skin condition assessment
+- **Unified Model**: Single Gemini 2.5 Flash model handles all input types (text, image, audio, video) for consistent health insights
 
 ## Multimodal Features
 
@@ -58,7 +58,14 @@ I leveraged Google AI Studio extensively to power the multimodal capabilities:
 
 - Skin Photo Analysis: Users upload photos of skin conditions, and Gemini analyzes them for potential health concerns
 - Medication OCR: Scans medication labels and bottles to extract drug information, dosages, and instructions
-- Visual Health Monitoring: Tracks changes in skin conditions over time with AI-powered
+- Visual Health Monitoring: Tracks changes in skin conditions over time with AI-powered analysis
+
+### 🎥 Video + Text Analysis
+
+- Video Health Monitoring: Users upload videos for comprehensive health assessment including movement analysis, behavioral indicators, and skin condition tracking
+- Movement Analysis: Assesses gait, balance, coordination, and physical mobility indicators
+- Behavioral Assessment: Detects signs of pain, confusion, distress, or cognitive changes
+- Multi-frame Analysis: Processes video content for temporal health pattern recognition
 
 ### 🎤 Voice + Text Processing
 
