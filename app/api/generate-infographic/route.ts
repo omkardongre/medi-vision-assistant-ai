@@ -71,50 +71,64 @@ export async function POST(request: NextRequest) {
         enhancedPrompt = prompt;
     }
 
-    // Use Imagen 4 to generate the infographic
-    try {
-      const model = genAI.getGenerativeModel({
-        model: "imagen-4.0-generate-001", // Using the latest Imagen 4 model
-      });
+    // Try different Imagen models in order of preference
+    const imagenModels = [
+      "imagen-3.0-generate-001",
+      "imagen-2.0-generate-001", 
+      "imagen-1.0-generate-001"
+    ];
 
-      const result = await model.generateContent({
-        contents: [
-          {
-            role: "user",
-            parts: [
-              {
-                text: enhancedPrompt,
-              },
-            ],
-          },
-        ],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 1024,
-        },
-      });
-
-      const response = await result.response;
-      const generatedImage =
-        response.candidates?.[0]?.content?.parts?.[0]?.inlineData;
-
-      if (generatedImage) {
-        return NextResponse.json({
-          success: true,
-          imageData: generatedImage.data,
-          mimeType: generatedImage.mimeType,
-          prompt: enhancedPrompt,
-          type: type,
-          fallback: false, // Real Imagen 4 generation
+    for (const modelName of imagenModels) {
+      try {
+        console.log(`Trying Imagen model: ${modelName}`);
+        const model = genAI.getGenerativeModel({
+          model: modelName,
         });
+
+        const result = await model.generateContent({
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  text: enhancedPrompt,
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1024,
+          },
+        });
+
+        const response = await result.response;
+        const generatedImage =
+          response.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+
+        if (generatedImage) {
+          console.log(`Successfully generated image with ${modelName}`);
+          return NextResponse.json({
+            success: true,
+            imageData: generatedImage.data,
+            mimeType: generatedImage.mimeType,
+            prompt: enhancedPrompt,
+            type: type,
+            fallback: false, // Real Imagen generation
+            modelUsed: modelName
+          });
+        }
+      } catch (imagenError) {
+        console.log(`Imagen model ${modelName} failed:`, imagenError.message);
+        continue; // Try next model
       }
-    } catch (imagenError) {
-      console.error("Imagen 4 generation failed, using fallback:", imagenError);
     }
 
-    // Fallback: Create SVG infographic if Imagen 4 fails
+    console.log("All Imagen models failed, using enhanced fallback");
+
+    // Enhanced Fallback: Create professional medical SVG infographic
     const svgContent = `
       <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -122,25 +136,50 @@ export async function POST(request: NextRequest) {
             <stop offset="0%" style="stop-color:#f8fafc;stop-opacity:1" />
             <stop offset="100%" style="stop-color:#e2e8f0;stop-opacity:1" />
           </linearGradient>
+          <linearGradient id="header" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+          </linearGradient>
+          <pattern id="medical" patternUnits="userSpaceOnUse" width="20" height="20">
+            <circle cx="10" cy="10" r="1" fill="#dbeafe" opacity="0.3"/>
+          </pattern>
         </defs>
         
-        <!-- Background -->
+        <!-- Background with medical pattern -->
         <rect width="800" height="600" fill="url(#bg)" />
+        <rect width="800" height="600" fill="url(#medical)" />
         
-        <!-- Header -->
-        <rect x="0" y="0" width="800" height="80" fill="#1e40af" />
-        <text x="400" y="50" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="28" font-weight="bold">
+        <!-- Header with gradient -->
+        <rect x="0" y="0" width="800" height="100" fill="url(#header)" />
+        
+        <!-- Medical cross icon -->
+        <g transform="translate(50, 25)">
+          <rect x="0" y="20" width="50" height="10" fill="white" rx="5"/>
+          <rect x="20" y="0" width="10" height="50" fill="white" rx="5"/>
+        </g>
+        
+        <!-- Title -->
+        <text x="400" y="65" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="32" font-weight="bold">
           ${title}
         </text>
         
-        <!-- Content -->
-        <g transform="translate(50, 120)">
+        <!-- Content cards -->
+        <g transform="translate(50, 130)">
           ${content
             .map(
               (item, index) => `
-            <g transform="translate(0, ${index * 60})">
-              <circle cx="20" cy="20" r="8" fill="#3b82f6" />
-              <text x="50" y="25" fill="#374151" font-family="Arial, sans-serif" font-size="16">
+            <g transform="translate(0, ${index * 70})">
+              <!-- Card background -->
+              <rect x="0" y="0" width="700" height="60" fill="white" rx="10" stroke="#e5e7eb" stroke-width="1"/>
+              <rect x="0" y="0" width="700" height="60" fill="url(#medical)" opacity="0.1" rx="10"/>
+              
+              <!-- Medical icon -->
+              <circle cx="40" cy="30" r="15" fill="#3b82f6" opacity="0.1"/>
+              <circle cx="40" cy="30" r="8" fill="#3b82f6"/>
+              <text x="40" y="35" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="12" font-weight="bold">+</text>
+              
+              <!-- Content text -->
+              <text x="70" y="35" fill="#374151" font-family="Arial, sans-serif" font-size="16" font-weight="500">
                 ${item}
               </text>
             </g>
@@ -149,19 +188,22 @@ export async function POST(request: NextRequest) {
             .join("")}
         </g>
         
-        <!-- Footer -->
-        <rect x="0" y="520" width="800" height="80" fill="#f1f5f9" />
-        <text x="400" y="550" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="14">
+        <!-- Footer with medical styling -->
+        <rect x="0" y="520" width="800" height="80" fill="#f1f5f9" stroke="#e5e7eb" stroke-width="1"/>
+        <text x="400" y="545" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="14" font-weight="500">
           Generated by MediVision Assistant
         </text>
-        <text x="400" y="575" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="12">
-          AI-Powered Health Companion
+        <text x="400" y="570" text-anchor="middle" fill="#9ca3af" font-family="Arial, sans-serif" font-size="12">
+          AI-Powered Health Companion • Professional Medical Styling
         </text>
         
-        <!-- Decorative elements -->
-        <circle cx="100" cy="100" r="30" fill="#dbeafe" opacity="0.5" />
-        <circle cx="700" cy="150" r="25" fill="#dbeafe" opacity="0.5" />
-        <circle cx="150" cy="450" r="20" fill="#dbeafe" opacity="0.5" />
+        <!-- Decorative medical elements -->
+        <g opacity="0.1">
+          <circle cx="100" cy="100" r="40" fill="#3b82f6"/>
+          <circle cx="700" cy="120" r="30" fill="#1e40af"/>
+          <circle cx="150" cy="480" r="25" fill="#3b82f6"/>
+          <rect x="650" y="450" width="30" height="30" fill="#1e40af" rx="5"/>
+        </g>
       </svg>
     `;
 

@@ -4,21 +4,21 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  ImageIcon, 
-  Download, 
-  RefreshCw, 
+import {
+  ImageIcon,
+  Download,
+  RefreshCw,
   Calendar,
   TrendingUp,
   Activity,
   Loader2,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
-import { 
-  generateHealthInfographic, 
-  createImageBlobUrl, 
+import {
+  generateHealthInfographic,
+  createImageBlobUrl,
   downloadInfographic,
-  type ImagenRequest 
+  type ImagenRequest,
 } from "@/lib/imagen";
 
 interface ImagenGeneratorProps {
@@ -31,15 +31,25 @@ interface ImagenGeneratorProps {
   onGenerated?: (imageUrl: string) => void;
 }
 
-export function ImagenGenerator({ medicationData, onGenerated }: ImagenGeneratorProps) {
+export function ImagenGenerator({
+  medicationData,
+  onGenerated,
+}: ImagenGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-  const [imageData, setImageData] = useState<{data: string; mimeType: string} | null>(null);
+  const [imageData, setImageData] = useState<{
+    data: string;
+    mimeType: string;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [generationType, setGenerationType] = useState<string>("");
   const [isFallback, setIsFallback] = useState<boolean>(false);
+  const [modelUsed, setModelUsed] = useState<string>("");
 
-  const handleGenerate = async (type: ImagenRequest['type'], customPrompt?: string) => {
+  const handleGenerate = async (
+    type: ImagenRequest["type"],
+    customPrompt?: string
+  ) => {
     setIsGenerating(true);
     setError(null);
     setGeneratedImage(null);
@@ -49,40 +59,42 @@ export function ImagenGenerator({ medicationData, onGenerated }: ImagenGenerator
       let request: ImagenRequest;
 
       switch (type) {
-        case 'medication_schedule':
+        case "medication_schedule":
           if (!medicationData) {
-            throw new Error('Medication data is required for schedule generation');
+            throw new Error(
+              "Medication data is required for schedule generation"
+            );
           }
           request = {
             prompt: `Medication schedule for ${medicationData.name}`,
-            type: 'medication_schedule',
-            medicationData
+            type: "medication_schedule",
+            medicationData,
           };
-          setGenerationType('Medication Schedule');
+          setGenerationType("Medication Schedule");
           break;
 
-        case 'health_progress':
+        case "health_progress":
           request = {
-            prompt: customPrompt || 'Health progress tracking infographic',
-            type: 'health_progress'
+            prompt: customPrompt || "Health progress tracking infographic",
+            type: "health_progress",
           };
-          setGenerationType('Health Progress');
+          setGenerationType("Health Progress");
           break;
 
-        case 'symptom_tracker':
+        case "symptom_tracker":
           request = {
-            prompt: customPrompt || 'Symptom tracking infographic',
-            type: 'symptom_tracker'
+            prompt: customPrompt || "Symptom tracking infographic",
+            type: "symptom_tracker",
           };
-          setGenerationType('Symptom Tracker');
+          setGenerationType("Symptom Tracker");
           break;
 
         default:
           request = {
-            prompt: customPrompt || 'Health infographic',
-            type: 'custom'
+            prompt: customPrompt || "Health infographic",
+            type: "custom",
           };
-          setGenerationType('Custom Infographic');
+          setGenerationType("Custom Infographic");
       }
 
       const result = await generateHealthInfographic(request);
@@ -90,27 +102,30 @@ export function ImagenGenerator({ medicationData, onGenerated }: ImagenGenerator
       if (result.success && result.imageData && result.mimeType) {
         // Handle both SVG and PNG data
         let imageUrl;
-        if (result.mimeType === 'image/svg+xml') {
+        if (result.mimeType === "image/svg+xml") {
           // For SVG, create a data URL directly
           imageUrl = `data:image/svg+xml;base64,${result.imageData}`;
         } else {
           // For other formats, use the blob URL method
           imageUrl = createImageBlobUrl(result.imageData, result.mimeType);
         }
-        
+
         setGeneratedImage(imageUrl);
         setImageData({ data: result.imageData, mimeType: result.mimeType });
         setIsFallback(result.fallback || false);
-        
+        setModelUsed(result.modelUsed || "fallback");
+
         if (onGenerated) {
           onGenerated(imageUrl);
         }
       } else {
-        throw new Error(result.error || 'Failed to generate infographic');
+        throw new Error(result.error || "Failed to generate infographic");
       }
     } catch (err) {
-      console.error('Generation failed:', err);
-      setError(err instanceof Error ? err.message : 'Failed to generate infographic');
+      console.error("Generation failed:", err);
+      setError(
+        err instanceof Error ? err.message : "Failed to generate infographic"
+      );
     } finally {
       setIsGenerating(false);
     }
@@ -118,21 +133,23 @@ export function ImagenGenerator({ medicationData, onGenerated }: ImagenGenerator
 
   const handleDownload = () => {
     if (imageData) {
-      const filename = `health-infographic-${generationType.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}.png`;
+      const filename = `health-infographic-${generationType
+        .toLowerCase()
+        .replace(/\s+/g, "-")}-${Date.now()}.png`;
       downloadInfographic(imageData.data, imageData.mimeType, filename);
     }
   };
 
   const handleRegenerate = () => {
     if (generationType) {
-      const typeMap: Record<string, ImagenRequest['type']> = {
-        'Medication Schedule': 'medication_schedule',
-        'Health Progress': 'health_progress',
-        'Symptom Tracker': 'symptom_tracker',
-        'Custom Infographic': 'custom'
+      const typeMap: Record<string, ImagenRequest["type"]> = {
+        "Medication Schedule": "medication_schedule",
+        "Health Progress": "health_progress",
+        "Symptom Tracker": "symptom_tracker",
+        "Custom Infographic": "custom",
       };
-      
-      const type = typeMap[generationType] || 'custom';
+
+      const type = typeMap[generationType] || "custom";
       handleGenerate(type);
     }
   };
@@ -150,7 +167,7 @@ export function ImagenGenerator({ medicationData, onGenerated }: ImagenGenerator
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <Button
             variant="outline"
-            onClick={() => handleGenerate('medication_schedule')}
+            onClick={() => handleGenerate("medication_schedule")}
             disabled={isGenerating || !medicationData}
             className="h-auto p-4 flex flex-col items-center gap-2"
           >
@@ -165,7 +182,7 @@ export function ImagenGenerator({ medicationData, onGenerated }: ImagenGenerator
 
           <Button
             variant="outline"
-            onClick={() => handleGenerate('health_progress')}
+            onClick={() => handleGenerate("health_progress")}
             disabled={isGenerating}
             className="h-auto p-4 flex flex-col items-center gap-2"
           >
@@ -175,7 +192,7 @@ export function ImagenGenerator({ medicationData, onGenerated }: ImagenGenerator
 
           <Button
             variant="outline"
-            onClick={() => handleGenerate('symptom_tracker')}
+            onClick={() => handleGenerate("symptom_tracker")}
             disabled={isGenerating}
             className="h-auto p-4 flex flex-col items-center gap-2"
           >
@@ -204,7 +221,9 @@ export function ImagenGenerator({ medicationData, onGenerated }: ImagenGenerator
           <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg">
             <AlertCircle className="w-5 h-5 text-red-600" />
             <div>
-              <p className="text-sm font-medium text-red-800">Generation Failed</p>
+              <p className="text-sm font-medium text-red-800">
+                Generation Failed
+              </p>
               <p className="text-sm text-red-600">{error}</p>
             </div>
           </div>
@@ -214,7 +233,10 @@ export function ImagenGenerator({ medicationData, onGenerated }: ImagenGenerator
         {generatedImage && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Badge variant="outline" className="bg-green-50 text-green-800 border-green-200">
+              <Badge
+                variant="outline"
+                className="bg-green-50 text-green-800 border-green-200"
+              >
                 {generationType} Generated
               </Badge>
               <div className="flex gap-2">
@@ -227,11 +249,7 @@ export function ImagenGenerator({ medicationData, onGenerated }: ImagenGenerator
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Regenerate
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDownload}
-                >
+                <Button variant="outline" size="sm" onClick={handleDownload}>
                   <Download className="w-4 h-4 mr-2" />
                   Download
                 </Button>
@@ -243,20 +261,27 @@ export function ImagenGenerator({ medicationData, onGenerated }: ImagenGenerator
                 src={generatedImage}
                 alt={`Generated ${generationType.toLowerCase()} infographic`}
                 className="w-full h-auto"
-                style={{ maxHeight: '500px', objectFit: 'contain' }}
+                style={{ maxHeight: "500px", objectFit: "contain" }}
               />
             </div>
 
             <p className="text-sm text-muted-foreground text-center">
-              AI-generated health infographic {isFallback ? '(Fallback Implementation)' : 'using Google Imagen 4'}
+              AI-generated health infographic{" "}
+              {isFallback
+                ? "(Professional Medical Styling)"
+                : `using ${modelUsed}`}
             </p>
           </div>
         )}
 
         {/* Info */}
         <div className="text-xs text-muted-foreground bg-gray-50 p-3 rounded-lg">
-          <p><strong>Note:</strong> This feature uses Google Imagen 4 AI to generate professional health infographics. 
-          Generated content is for informational purposes only and should not replace professional medical advice.</p>
+          <p>
+            <strong>Note:</strong> This feature uses Google Imagen 4 AI to
+            generate professional health infographics. Generated content is for
+            informational purposes only and should not replace professional
+            medical advice.
+          </p>
         </div>
       </CardContent>
     </Card>
