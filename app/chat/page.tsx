@@ -1,26 +1,27 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useRef, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { apiClient } from "@/lib/api-client"
-import { useSpeech } from "@/hooks/use-speech"
-import { ArrowLeft, Send, Volume2, VolumeX, Bot, User } from "lucide-react"
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { apiClient } from "@/lib/api-client";
+import { useSpeech } from "@/hooks/use-speech";
+import { EmergencyAlertDisplay } from "@/components/emergency-alert-display";
+import { ArrowLeft, Send, Volume2, VolumeX, Bot, User } from "lucide-react";
 
 interface Message {
-  id: string
-  role: "user" | "assistant"
-  content: string
-  timestamp: Date
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: Date;
 }
 
 export default function ChatPage() {
-  const router = useRouter()
-  const { speak, isSpeaking, stop } = useSpeech()
+  const router = useRouter();
+  const { speak, isSpeaking, stop } = useSpeech();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
@@ -29,85 +30,94 @@ export default function ChatPage() {
         "Hello! I'm your AI health assistant. I'm here to help answer your health questions and provide general guidance. How can I assist you today?",
       timestamp: new Date(),
     },
-  ])
-  const [inputMessage, setInputMessage] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [voiceEnabled, setVoiceEnabled] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  ]);
+  const [inputMessage, setInputMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [emergencyAlert, setEmergencyAlert] = useState<any>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+    scrollToBottom();
+  }, [messages]);
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) return
+    if (!inputMessage.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
       content: inputMessage,
       timestamp: new Date(),
-    }
+    };
 
-    setMessages((prev) => [...prev, userMessage])
-    setInputMessage("")
-    setIsLoading(true)
+    setMessages((prev) => [...prev, userMessage]);
+    setInputMessage("");
+    setIsLoading(true);
 
     try {
-      const response = await apiClient.sendChatMessage(inputMessage, messages)
+      const response = await apiClient.sendChatMessage(inputMessage, messages);
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: response,
+        content: response.message,
         timestamp: new Date(),
-      }
+      };
 
-      setMessages((prev) => [...prev, assistantMessage])
+      setMessages((prev) => [...prev, assistantMessage]);
 
-      // Speak the response if voice is enabled
-      if (voiceEnabled) {
-        speak(response)
+      // Check for emergency detection
+      if (response.emergency) {
+        setEmergencyAlert(response.emergency);
+        // Speak emergency alert immediately
+        speak(`Emergency detected: ${response.emergency.message}`);
+      } else {
+        // Speak the response if voice is enabled
+        if (voiceEnabled && response.message && response.message.trim()) {
+          speak(response.message);
+        }
       }
     } catch (error) {
-      console.error("Chat error:", error)
+      console.error("Chat error:", error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "I'm sorry, I'm having trouble responding right now. Please try again in a moment.",
+        content:
+          "I'm sorry, I'm having trouble responding right now. Please try again in a moment.",
         timestamp: new Date(),
-      }
-      setMessages((prev) => [...prev, errorMessage])
+      };
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      handleSendMessage()
+      e.preventDefault();
+      handleSendMessage();
     }
-  }
+  };
 
   const toggleVoice = () => {
     if (voiceEnabled) {
-      stop()
+      stop();
     }
-    setVoiceEnabled(!voiceEnabled)
-  }
+    setVoiceEnabled(!voiceEnabled);
+  };
 
   const speakMessage = (content: string) => {
     if (isSpeaking) {
-      stop()
+      stop();
     } else {
-      speak(content)
+      speak(content);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -126,8 +136,12 @@ export default function ChatPage() {
                 <ArrowLeft className="w-4 h-4" />
               </Button>
               <div>
-                <h1 className="text-xl font-bold text-foreground font-work-sans">Health Chat</h1>
-                <p className="text-sm text-muted-foreground">AI-powered health assistant</p>
+                <h1 className="text-xl font-bold text-foreground font-work-sans">
+                  Health Chat
+                </h1>
+                <p className="text-sm text-muted-foreground">
+                  AI-powered health assistant
+                </p>
               </div>
             </div>
 
@@ -135,10 +149,20 @@ export default function ChatPage() {
               variant="outline"
               size="sm"
               onClick={toggleVoice}
-              className={`touch-target ${voiceEnabled ? "bg-primary text-primary-foreground" : ""}`}
-              aria-label={voiceEnabled ? "Disable voice responses" : "Enable voice responses"}
+              className={`touch-target ${
+                voiceEnabled ? "bg-primary text-primary-foreground" : ""
+              }`}
+              aria-label={
+                voiceEnabled
+                  ? "Disable voice responses"
+                  : "Enable voice responses"
+              }
             >
-              {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+              {voiceEnabled ? (
+                <Volume2 className="w-4 h-4" />
+              ) : (
+                <VolumeX className="w-4 h-4" />
+              )}
             </Button>
           </div>
         </div>
@@ -148,17 +172,30 @@ export default function ChatPage() {
       <div className="flex-1 container mx-auto px-4 py-6 max-w-4xl">
         <div className="space-y-4 mb-6">
           {messages.map((message) => (
-            <div key={message.id} className={`flex gap-3 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div
+              key={message.id}
+              className={`flex gap-3 ${
+                message.role === "user" ? "justify-end" : "justify-start"
+              }`}
+            >
               {message.role === "assistant" && (
                 <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
                   <Bot className="w-4 h-4 text-primary-foreground" />
                 </div>
               )}
 
-              <Card className={`max-w-[80%] ${message.role === "user" ? "bg-primary text-primary-foreground" : ""}`}>
+              <Card
+                className={`max-w-[80%] ${
+                  message.role === "user"
+                    ? "bg-primary text-primary-foreground"
+                    : ""
+                }`}
+              >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap flex-1">{message.content}</p>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap flex-1">
+                      {message.content}
+                    </p>
                     {message.role === "assistant" && (
                       <Button
                         variant="ghost"
@@ -171,7 +208,9 @@ export default function ChatPage() {
                       </Button>
                     )}
                   </div>
-                  <p className="text-xs opacity-70 mt-2">{message.timestamp.toLocaleTimeString()}</p>
+                  <p className="text-xs opacity-70 mt-2">
+                    {message.timestamp.toLocaleTimeString()}
+                  </p>
                 </CardContent>
               </Card>
 
@@ -202,7 +241,9 @@ export default function ChatPage() {
                         style={{ animationDelay: "0.2s" }}
                       />
                     </div>
-                    <span className="text-sm text-muted-foreground">Thinking...</span>
+                    <span className="text-sm text-muted-foreground">
+                      Thinking...
+                    </span>
                   </div>
                 </CardContent>
               </Card>
@@ -257,6 +298,18 @@ export default function ChatPage() {
           </div>
         </div>
       </div>
+
+      {/* Emergency Alert Display */}
+      {emergencyAlert && (
+        <EmergencyAlertDisplay
+          emergency={emergencyAlert}
+          onDismiss={() => setEmergencyAlert(null)}
+          onEmergencyCall={() => {
+            // Handle emergency call
+            window.open("tel:911", "_self");
+          }}
+        />
+      )}
     </div>
-  )
+  );
 }

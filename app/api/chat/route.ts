@@ -1,46 +1,139 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { getGeminiProModel, HEALTH_PROMPTS } from "@/lib/gemini"
+import { type NextRequest, NextResponse } from "next/server";
+import { getGeminiProModel, HEALTH_PROMPTS } from "@/lib/gemini";
+import { saveConversation, updateConversation } from "@/lib/health-records";
+import {
+  emergencyIntelligence,
+  EmergencyAlert,
+} from "@/lib/emergency-intelligence";
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, conversationHistory = [] } = await request.json()
+    const {
+      message,
+      conversationHistory = [],
+      conversationId = null,
+    } = await request.json();
 
-    if (!message) {
-      return NextResponse.json({ error: "No message provided" }, { status: 400 })
+    if (!message?.trim()) {
+      return NextResponse.json(
+        { error: "No message provided" },
+        { status: 400 }
+      );
     }
 
-    const model = getGeminiProModel()
+    // **EMERGENCY DETECTION** - Check for emergencies first
+    const emergencyAlert: EmergencyAlert | null =
+      emergencyIntelligence.detectEmergency(message);
 
-    // Build conversation context
-    let conversationContext = HEALTH_PROMPTS.generalHealth + "\n\n"
+    const model = getGeminiProModel();
 
-    if (conversationHistory.length > 0) {
-      conversationContext += "Previous conversation:\n"
-      conversationHistory.slice(-10).forEach((msg: any) => {
-        conversationContext += `${msg.role}: ${msg.content}\n`
-      })
-      conversationContext += "\n"
-    }
+    // Build conversation context including system prompt
+    const conversationContext = [
+      HEALTH_PROMPTS.healthChat,
+      // Add conversation history
+      ...conversationHistory
+        .map(
+          (msg: any) =>
+            `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
+        )
+        .join("\n"),
+      `User: ${message}`,
+    ].join("\n");
 
-    conversationContext += `User: ${message}\nAssistant:`
+    const result = await model.generateContent(conversationContext);
+    const response = await result.response;
+    const aiResponse = response.text();
 
-    const result = await model.generateContent(conversationContext)
-    const response = await result.response
-    const assistantMessage = response.text()
+    // Additional emergency check on AI response
+    const responseEmergency: EmergencyAlert | null =
+      emergencyIntelligence.detectEmergency(aiResponse);
+    const finalEmergencyAlert: EmergencyAlert | null =
+      emergencyAlert || responseEmergency;
 
-    return NextResponse.json({
-      success: true,
-      message: assistantMessage,
+    // Prepare updated conversation history
+    const newMessage = {
+      role: "user",
+      content: message,
       timestamp: new Date().toISOString(),
-    })
+    };
+    const aiMessage = {
+      role: "assistant",
+      content: aiResponse,
+      timestamp: new Date().toISOString(),
+    };
+    const updatedHistory = [...conversationHistory, newMessage, aiMessage];
+
+    // Save or update conversation in database
+    try {
+      let savedConversation;
+
+      if (conversationId) {
+        // Update existing conversation
+        savedConversation = await updateConversation(
+          conversationId,
+          updatedHistory
+        );
+      } else {
+        // Create new conversation with title based on first message
+        const title =
+          message.length > 50 ? message.substring(0, 50) + "..." : message;
+        savedConversation = await saveConversation(
+          `Health Chat: ${title}`,
+          updatedHistory
+        );
+      }
+
+      // Save conversation with emergency alert if detected
+      if (savedConversation) {
+        await saveConversation({
+          id: savedConversation.id,
+          message,
+          response: aiResponse,
+          timestamp: new Date(),
+          analysis: {
+            emergency: finalEmergencyAlert ? true : false,
+            emergencyAlert: finalEmergencyAlert || undefined,
+          },
+        });
+      }
+
+      return NextResponse.json({
+        success: true,
+        response: aiResponse,
+        conversationHistory: updatedHistory,
+        conversationId: savedConversation.id,
+        saved: true,
+        analysis: {
+          emergency: finalEmergencyAlert ? true : false,
+          emergencyAlert: finalEmergencyAlert || null,
+        },
+      });
+    } catch (saveError) {
+      // If saving fails, still return response but indicate it wasn't saved
+      console.error("Failed to save conversation:", saveError);
+
+      return NextResponse.json({
+        success: true,
+        response: aiResponse,
+        conversationHistory: updatedHistory,
+        conversationId: conversationId || null,
+        saved: false,
+        saveError:
+          "Could not save conversation. Please ensure you are signed in.",
+        analysis: {
+          emergency: finalEmergencyAlert ? true : false,
+          emergencyAlert: finalEmergencyAlert || null,
+        },
+      });
+    }
   } catch (error) {
-    console.error("Error in chat:", error)
+    console.error("Error in health chat:", error);
     return NextResponse.json(
       {
         error: "Failed to process chat message",
         details: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 },
-    )
+      { status: 500 }
+    );
   }
 }
