@@ -205,7 +205,11 @@ export async function deleteHealthRecord(id: string) {
 }
 
 // Conversation Functions
-export async function saveConversation(title: string, messages: any[], authToken?: string) {
+export async function saveConversation(
+  title: string,
+  messages: any[],
+  authToken?: string
+) {
   try {
     const supabase = createSupabaseClient();
 
@@ -213,7 +217,10 @@ export async function saveConversation(title: string, messages: any[], authToken
     let user;
     if (authToken) {
       // Use provided auth token
-      const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(authToken);
+      const {
+        data: { user: tokenUser },
+        error: tokenError,
+      } = await supabase.auth.getUser(authToken);
       if (tokenError || !tokenUser) {
         throw new Error("Invalid auth token");
       }
@@ -230,6 +237,12 @@ export async function saveConversation(title: string, messages: any[], authToken
       }
       user = sessionUser;
     }
+
+    console.log("Saving conversation:", {
+      title,
+      messageCount: messages.length,
+      userId: user.id,
+    });
 
     const { data, error } = await supabase
       .from("conversations")
@@ -250,6 +263,7 @@ export async function saveConversation(title: string, messages: any[], authToken
       throw error;
     }
 
+    console.log("Conversation saved successfully:", data.id);
     return data;
   } catch (error) {
     console.error("Error saving conversation:", error);
@@ -257,7 +271,11 @@ export async function saveConversation(title: string, messages: any[], authToken
   }
 }
 
-export async function updateConversation(id: string, messages: any[], authToken?: string) {
+export async function updateConversation(
+  id: string,
+  messages: any[],
+  authToken?: string
+) {
   try {
     const supabase = createSupabaseClient();
 
@@ -265,7 +283,10 @@ export async function updateConversation(id: string, messages: any[], authToken?
     let user;
     if (authToken) {
       // Use provided auth token
-      const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(authToken);
+      const {
+        data: { user: tokenUser },
+        error: tokenError,
+      } = await supabase.auth.getUser(authToken);
       if (tokenError || !tokenUser) {
         throw new Error("Invalid auth token");
       }
@@ -317,9 +338,11 @@ export async function getConversations(userId?: string) {
         error: authError,
       } = await supabase.auth.getUser();
       if (authError || !user) {
-        throw new Error("User not authenticated");
+        console.log("No authenticated user found");
+        return [];
       }
       userId = user.id;
+      console.log("Fetching conversations for user:", userId);
     }
 
     const { data, error } = await supabase
@@ -330,13 +353,14 @@ export async function getConversations(userId?: string) {
 
     if (error) {
       console.error("Database error:", error);
-      throw error;
+      return [];
     }
 
+    console.log("Found conversations:", data?.length || 0);
     return data || [];
   } catch (error) {
     console.error("Error fetching conversations:", error);
-    throw error;
+    return [];
   }
 }
 

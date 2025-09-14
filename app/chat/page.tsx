@@ -76,12 +76,15 @@ export default function ChatPage() {
     const loadConversations = async () => {
       try {
         setIsLoadingConversations(true);
+        console.log("Loading conversations...");
         const conversationsData = await getConversations();
+        console.log("Loaded conversations:", conversationsData);
         setConversations(conversationsData);
 
         if (conversationsData && conversationsData.length > 0) {
           // Load the most recent conversation
           const latestConversation = conversationsData[0];
+          console.log("Loading latest conversation:", latestConversation.title);
           setCurrentConversationId(latestConversation.id);
 
           // Convert conversation messages to Message format
@@ -97,6 +100,8 @@ export default function ChatPage() {
             }));
 
           setMessages(conversationMessages);
+        } else {
+          console.log("No conversations found, using default welcome message");
         }
       } catch (error) {
         console.error("Error loading conversations:", error);
@@ -160,9 +165,16 @@ export default function ChatPage() {
     setIsLoading(true);
 
     try {
+      // Convert messages to conversation history format
+      const conversationHistory = messages.map((msg) => ({
+        role: msg.role,
+        content: msg.content,
+        timestamp: msg.timestamp.toISOString(),
+      }));
+
       const response = await apiClient.sendChatMessage(
         inputMessage,
-        messages,
+        conversationHistory,
         currentConversationId
       );
 
@@ -261,7 +273,10 @@ export default function ChatPage() {
             </div>
           ) : conversations.length === 0 ? (
             <div className="text-center text-muted-foreground py-4">
-              No conversations yet
+              <div className="text-sm">No conversations yet</div>
+              <div className="text-xs mt-2 opacity-70">
+                Start a new chat to see it here
+              </div>
             </div>
           ) : (
             <div className="space-y-2">
