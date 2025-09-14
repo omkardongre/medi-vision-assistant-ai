@@ -69,6 +69,29 @@ export default function HealthRecordsPage() {
     loadData();
   }, [user, router]);
 
+  // Refresh data when page becomes visible (e.g., navigating back from another page)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && user) {
+        loadData();
+      }
+    };
+
+    const handlePageShow = () => {
+      if (user) {
+        loadData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('pageshow', handlePageShow);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('pageshow', handlePageShow);
+    };
+  }, [user]);
+
   useEffect(() => {
     applyFilters();
   }, [records, filter, searchQuery]);
@@ -118,7 +141,25 @@ export default function HealthRecordsPage() {
     try {
       await deleteHealthRecord(recordId);
       // Remove from local state
-      setRecords(records.filter((r) => r.id !== recordId));
+      const updatedRecords = records.filter((r) => r.id !== recordId);
+      setRecords(updatedRecords);
+      
+      // Update filtered records immediately
+      setFilteredRecords(updatedRecords.filter((record) => {
+        // Apply current filters to the updated records
+        if (filter !== "all" && record.type !== filter) {
+          return false;
+        }
+        if (searchQuery.trim()) {
+          const query = searchQuery.toLowerCase();
+          return (
+            record.title.toLowerCase().includes(query) ||
+            (record.analysis_result?.analysis || "").toLowerCase().includes(query)
+          );
+        }
+        return true;
+      }));
+      
       // Refresh health stats to update counts
       const updatedStats = await getHealthStats();
       setHealthStats(updatedStats);
