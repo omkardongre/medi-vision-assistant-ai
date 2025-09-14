@@ -608,7 +608,7 @@ Complete these 7 tests successfully = **Winning Demo Ready!** 🏆
 
 1. Go to `/skin-analysis`
 2. Click "Video Analysis" mode toggle
-3. Upload a video file (MP4, MOV, AVI - max 10MB)
+3. Upload a video file (MP4, MOV, AVI - max 25MB)
 4. Click "Analyze Video" button
 5. Wait for analysis to complete
 6. Verify analysis results are displayed
@@ -625,7 +625,7 @@ Complete these 7 tests successfully = **Winning Demo Ready!** 🏆
 ### **Test 20.2: Video Analysis Error Handling** - Status: [ ] PASS [ ] FAIL [ ] SKIP
 
 1. Try uploading a file that's not a video
-2. Try uploading a video larger than 10MB
+2. Try uploading a video larger than 25MB
 3. Try analyzing without selecting a video
 4. Test with poor quality/low light video
 

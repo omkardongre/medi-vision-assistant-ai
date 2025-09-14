@@ -226,7 +226,7 @@ export default function SkinAnalysisPage() {
                   <p>• Record a clear, well-lit video of the area you want to analyze</p>
                   <p>• Keep the camera steady and ensure good lighting</p>
                   <p>• Show the area from different angles if possible</p>
-                  <p>• Maximum file size: 10MB</p>
+                  <p>• Maximum file size: 25MB</p>
                 </>
               )}
               <p>
@@ -267,7 +267,7 @@ export default function SkinAnalysisPage() {
                     {selectedVideo ? "Change Video" : "Select Video File"}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    MP4, MOV, AVI (max 10MB)
+                    MP4, MOV, AVI (max 25MB)
                   </span>
                 </label>
               </div>

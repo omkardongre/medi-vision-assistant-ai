@@ -39,12 +39,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file size (max 10MB for free tier)
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    // Validate file size (max 25MB for better video support)
+    const maxSize = 25 * 1024 * 1024; // 25MB
     if (videoFile.size > maxSize) {
       console.error("❌ File too large:", videoFile.size, "bytes");
       return NextResponse.json(
-        { error: `Video file too large. Maximum size is 10MB. Received: ${Math.round(videoFile.size / 1024 / 1024)}MB` },
+        { error: `Video file too large. Maximum size is 25MB. Received: ${Math.round(videoFile.size / 1024 / 1024)}MB` },
         { status: 400 }
       );
     }
