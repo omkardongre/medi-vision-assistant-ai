@@ -211,22 +211,23 @@ export async function saveConversation(
   authToken?: string
 ) {
   try {
-    const supabase = createSupabaseClient();
-
-    // Get current user
+    let supabase;
     let user;
+
     if (authToken) {
-      // Use provided auth token
-      const {
-        data: { user: tokenUser },
-        error: tokenError,
-      } = await supabase.auth.getUser(authToken);
+      // Use admin client for server-side operations
+      supabase = createSupabaseAdminClient();
+      
+      // Verify the token and get user info
+      const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(authToken);
       if (tokenError || !tokenUser) {
         throw new Error("Invalid auth token");
       }
       user = tokenUser;
     } else {
-      // Fallback to current session
+      // Use regular client for client-side operations
+      supabase = createSupabaseClient();
+      
       const {
         data: { user: sessionUser },
         error: authError,
@@ -277,22 +278,23 @@ export async function updateConversation(
   authToken?: string
 ) {
   try {
-    const supabase = createSupabaseClient();
-
-    // Get current user
+    let supabase;
     let user;
+
     if (authToken) {
-      // Use provided auth token
-      const {
-        data: { user: tokenUser },
-        error: tokenError,
-      } = await supabase.auth.getUser(authToken);
+      // Use admin client for server-side operations
+      supabase = createSupabaseAdminClient();
+      
+      // Verify the token and get user info
+      const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(authToken);
       if (tokenError || !tokenUser) {
         throw new Error("Invalid auth token");
       }
       user = tokenUser;
     } else {
-      // Fallback to current session
+      // Use regular client for client-side operations
+      supabase = createSupabaseClient();
+      
       const {
         data: { user: sessionUser },
         error: authError,
@@ -401,12 +403,12 @@ export async function getHealthStats(userId?: string) {
     const stats = {
       totalRecords: records?.length || 0,
       skinAnalyses:
-        records?.filter((r) => r.type === "skin_analysis").length || 0,
-      voiceLogs: records?.filter((r) => r.type === "voice_log").length || 0,
+        records?.filter((r: any) => r.type === "skin_analysis").length || 0,
+      voiceLogs: records?.filter((r: any) => r.type === "voice_log").length || 0,
       medicationScans:
-        records?.filter((r) => r.type === "medication_scan").length || 0,
+        records?.filter((r: any) => r.type === "medication_scan").length || 0,
       chatSessions:
-        records?.filter((r) => r.type === "chat_session").length || 0,
+        records?.filter((r: any) => r.type === "chat_session").length || 0,
     };
 
     return stats;

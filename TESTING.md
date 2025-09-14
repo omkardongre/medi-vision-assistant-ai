@@ -200,7 +200,7 @@ curl -X POST http://localhost:3000/api/analyze-image \
 
 ## 💬 **Health Chat Testing**
 
-### **Test 4.1: Basic Chat Functionality** - Status: [ ] PASS [ ] FAIL [ ] SKIP
+### **Test 4.1: Basic Chat Functionality** - Status: [X] PASS [ ] FAIL [ ] SKIP
 
 1. **Prerequisites**: Sign in
 2. Navigate to `/chat`
