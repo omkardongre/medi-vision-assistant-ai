@@ -111,11 +111,128 @@ export default function HomePage() {
     document.documentElement.classList.toggle("dark");
   };
 
-  const toggleVoice = () => {
+  const toggleVoice = async () => {
     setIsVoiceEnabled(!isVoiceEnabled);
-    // Voice synthesis would be implemented here
+    
     if (!isVoiceEnabled) {
-      speak("Voice navigation enabled. You can now use voice commands.");
+      // Enable voice navigation
+      speak("Voice navigation enabled. Starting voice recognition...");
+      
+      // Check browser support
+      if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
+        alert("Speech recognition not supported in this browser. Please use Chrome or Edge.");
+        setIsVoiceEnabled(false);
+        return;
+      }
+
+      // Check microphone permissions
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach((track) => track.stop());
+        console.log("🎤 Microphone permission granted");
+      } catch (error) {
+        alert("Microphone permission required. Please allow microphone access.");
+        setIsVoiceEnabled(false);
+        return;
+      }
+
+      // Start voice recognition
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = "en-US";
+
+      recognition.onstart = () => {
+        console.log("🎤 Voice recognition started");
+        speak("Listening... Say a command like 'go home', 'skin analysis', 'help', etc.");
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        console.log("🎤 Heard:", transcript);
+        speak(`I heard: ${transcript}`);
+
+        // Full command processing with navigation
+        const normalizedTranscript = transcript.toLowerCase().trim();
+
+        if (
+          normalizedTranscript.includes("go home") ||
+          normalizedTranscript.includes("home page") ||
+          normalizedTranscript.includes("main menu")
+        ) {
+          window.location.href = "/";
+        } else if (
+          normalizedTranscript.includes("skin analysis") ||
+          normalizedTranscript.includes("analyze skin") ||
+          normalizedTranscript.includes("take photo") ||
+          normalizedTranscript.includes("camera")
+        ) {
+          window.location.href = "/skin-analysis";
+        } else if (
+          normalizedTranscript.includes("voice logger") ||
+          normalizedTranscript.includes("record symptoms") ||
+          normalizedTranscript.includes("voice recording")
+        ) {
+          window.location.href = "/voice-logger";
+        } else if (
+          normalizedTranscript.includes("medication") ||
+          normalizedTranscript.includes("scan medication") ||
+          normalizedTranscript.includes("pill scanner")
+        ) {
+          window.location.href = "/medication";
+        } else if (
+          normalizedTranscript.includes("health chat") ||
+          normalizedTranscript.includes("chat") ||
+          normalizedTranscript.includes("ask question") ||
+          normalizedTranscript.includes("talk to assistant")
+        ) {
+          window.location.href = "/chat";
+        } else if (
+          normalizedTranscript.includes("emergency") ||
+          normalizedTranscript.includes("call for help") ||
+          normalizedTranscript.includes("urgent")
+        ) {
+          alert("Emergency services would be contacted in a real implementation. This is a demo.");
+        } else if (
+          normalizedTranscript.includes("go back") ||
+          normalizedTranscript.includes("previous page") ||
+          normalizedTranscript.includes("back")
+        ) {
+          window.history.back();
+        } else if (
+          normalizedTranscript.includes("help") ||
+          normalizedTranscript.includes("what can you do") ||
+          normalizedTranscript.includes("voice commands") ||
+          normalizedTranscript.includes("commands")
+        ) {
+          alert("Available commands: go home, skin analysis, voice logger, medication, health chat, emergency, go back");
+        } else {
+          speak(`I didn't understand "${transcript}". Try saying: go home, skin analysis, voice logger, medication, health chat, emergency, or help`);
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        speak(`Speech recognition error: ${event.error}`);
+        setIsVoiceEnabled(false);
+      };
+
+      recognition.onend = () => {
+        console.log("🎤 Voice recognition ended");
+        setIsVoiceEnabled(false);
+      };
+
+      try {
+        recognition.start();
+      } catch (error) {
+        console.error("Failed to start speech recognition:", error);
+        speak("Failed to start voice recognition. Please try again.");
+        setIsVoiceEnabled(false);
+      }
+    } else {
+      // Disable voice navigation
+      speak("Voice navigation disabled.");
     }
   };
 

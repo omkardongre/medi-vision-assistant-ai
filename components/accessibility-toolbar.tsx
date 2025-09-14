@@ -55,13 +55,8 @@ export function AccessibilityToolbar() {
     setVoiceEnabled(newState);
     if (newState) {
       speak(
-        "Voice navigation enabled. Starting voice recognition in 2 seconds..."
+        "Voice navigation enabled. Click the microphone button to start voice commands, or press Ctrl+Space."
       );
-      // Auto-start listening after a short delay
-      setTimeout(() => {
-        console.log("Auto-starting voice command...");
-        startVoiceCommand();
-      }, 2000);
     } else {
       speak("Voice navigation disabled.");
     }
@@ -207,9 +202,20 @@ export function AccessibilityToolbar() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => {
-                console.log("Manual microphone button clicked");
-                startVoiceCommand();
+              onClick={async () => {
+                console.log("🎤 Manual microphone button clicked, voiceEnabled:", voiceEnabled);
+                if (!voiceEnabled) {
+                  speak("Please enable voice navigation first by clicking the speaker button.");
+                  return;
+                }
+                console.log("🎤 Starting voice command...");
+                speak("Starting voice recognition now...");
+                try {
+                  await startVoiceCommand();
+                } catch (error) {
+                  console.error("🎤 Error starting voice command:", error);
+                  speak("Error starting voice recognition. Please check microphone permissions.");
+                }
               }}
               disabled={!voiceEnabled}
               className={`touch-target ${
@@ -219,8 +225,8 @@ export function AccessibilityToolbar() {
                     ? "bg-blue-500 text-white hover:bg-blue-600"
                     : "bg-gray-300 text-gray-500"
               }`}
-              aria-label="Start voice command"
-              title="Click to start listening for voice commands"
+              aria-label={isListeningForCommand ? "Stop voice command" : "Start voice command"}
+              title={isListeningForCommand ? "Currently listening for voice commands" : "Click to start listening for voice commands"}
             >
               {isListeningForCommand ? (
                 <MicOff className="w-4 h-4" />
@@ -358,9 +364,11 @@ export function AccessibilityToolbar() {
 
           {/* Instructions */}
           <div className="text-xs text-muted-foreground p-2 max-w-48 border-t">
-            <p>Press Ctrl+Space for voice commands</p>
-            <p>Say "Hey MediVision" with wake word enabled</p>
-            <p>Use Tab to navigate</p>
+            <p><strong>Voice Commands:</strong></p>
+            <p>1. Click speaker to enable</p>
+            <p>2. Click microphone to start</p>
+            <p>3. Say: "go home", "skin analysis", "help", etc.</p>
+            <p>Or press Ctrl+Space</p>
           </div>
         </div>
       )}

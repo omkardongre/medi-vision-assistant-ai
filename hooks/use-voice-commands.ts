@@ -101,10 +101,12 @@ export function useVoiceCommands({ enabled, onCommandRecognized, onListening }: 
   const processCommand = useCallback(
     (transcript: string) => {
       const normalizedTranscript = transcript.toLowerCase().trim()
+      console.log("🎤 Processing command:", normalizedTranscript);
 
       for (const command of commands) {
         for (const phrase of command.phrases) {
           if (normalizedTranscript.includes(phrase.toLowerCase())) {
+            console.log("🎤 Command matched:", phrase, "->", command.description);
             onCommandRecognized?.(phrase)
             command.action()
             return true
@@ -113,29 +115,33 @@ export function useVoiceCommands({ enabled, onCommandRecognized, onListening }: 
       }
 
       // If no command matched, provide feedback
+      console.log("🎤 No command matched for:", normalizedTranscript);
       speak("I didn't understand that command. Say 'help' to hear available commands.")
       return false
     },
-    [onCommandRecognized, speak],
+    [onCommandRecognized, speak, commands],
   )
 
   const startListening = useCallback(async () => {
     console.log("Voice commands - startListening called, enabled:", enabled);
     if (!enabled) {
       console.log("Voice commands disabled");
+      speak("Voice commands are disabled. Please enable voice navigation first.");
       return;
     }
+    
     if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
       console.log("Speech recognition not supported");
       console.log("Available APIs:", Object.keys(window).filter(key => key.includes('Speech')));
-      speak("Speech recognition is not supported in this browser.");
+      speak("Speech recognition is not supported in this browser. Please use Chrome or Edge.");
       return;
     }
     
     console.log("Speech recognition is supported");
 
-    // Check microphone permissions
+    // Check microphone permissions first
     try {
+      console.log("🎤 Requesting microphone permission...");
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       console.log("🎤 Microphone permission granted");
       console.log("🎤 Available audio tracks:", stream.getAudioTracks().length);
@@ -145,8 +151,13 @@ export function useVoiceCommands({ enabled, onCommandRecognized, onListening }: 
       });
     } catch (error) {
       console.error("❌ Microphone permission denied:", error);
-      speak("Microphone permission is required for voice commands. Please allow microphone access and try again.");
+      speak("Microphone permission is required for voice commands. Please allow microphone access in your browser settings and try again.");
       return;
+    }
+
+    // Stop any existing recognition
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
     }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
@@ -155,10 +166,11 @@ export function useVoiceCommands({ enabled, onCommandRecognized, onListening }: 
     recognitionRef.current.continuous = false
     recognitionRef.current.interimResults = false
     recognitionRef.current.lang = "en-US"
+    recognitionRef.current.maxAlternatives = 1
 
     recognitionRef.current.onstart = () => {
       console.log("🎤 Voice recognition started - listening for commands");
-      speak("Listening for voice commands. Say a command now.");
+      speak("Listening for voice commands. Say a command now. Available commands: go home, skin analysis, voice logger, medication, health chat, emergency, go back, or help.");
       isListeningRef.current = true
       onListening?.(true)
     }
@@ -173,6 +185,7 @@ export function useVoiceCommands({ enabled, onCommandRecognized, onListening }: 
       const transcript = event.results[0][0].transcript
       console.log("🎤 Voice command received:", transcript);
       console.log("🎤 Full event results:", event.results);
+      speak(`I heard: ${transcript}`);
       processCommand(transcript)
     }
 
@@ -186,25 +199,32 @@ export function useVoiceCommands({ enabled, onCommandRecognized, onListening }: 
       if (event.error === 'not-allowed') {
         speak("Microphone permission denied. Please allow microphone access and try again.")
       } else if (event.error === 'no-speech') {
-        speak("No speech detected. Please try again.")
+        speak("No speech detected. Please try again and speak clearly.")
       } else if (event.error === 'network') {
         speak("Network error. Please check your internet connection.")
+      } else if (event.error === 'aborted') {
+        speak("Voice recognition was interrupted. Try again.")
       } else {
-        speak(`Speech recognition error: ${event.error}`)
+        speak(`Speech recognition error: ${event.error}. Please try again.`)
       }
     }
 
     console.log("Starting speech recognition...");
-    recognitionRef.current.start()
+    try {
+      recognitionRef.current.start()
+    } catch (error) {
+      console.error("Failed to start speech recognition:", error);
+      speak("Failed to start voice recognition. Please try again.");
+    }
     
     // Add a timeout to detect if recognition doesn't start
     setTimeout(() => {
       if (!isListeningRef.current) {
         console.log("⚠️ Voice recognition didn't start after 3 seconds");
-        speak("Voice recognition failed to start. Please check microphone permissions.");
+        speak("Voice recognition failed to start. Please check microphone permissions and try again.");
       }
     }, 3000);
-  }, [enabled, processCommand, onListening])
+  }, [enabled, processCommand, onListening, speak])
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current) {

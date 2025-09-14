@@ -69,7 +69,31 @@ echo -e "${GREEN}✅ APIs enabled${NC}"
 
 # Step 4: Build and push the Docker image
 echo -e "${YELLOW}🐳 Building Docker image...${NC}"
-docker build -t $IMAGE_NAME:latest .
+
+# Build with environment variables from .env.local
+BUILD_ARGS=""
+if [ -f ".env.local" ]; then
+    echo -e "${BLUE}📝 Reading environment variables from .env.local for build...${NC}"
+    
+    # Read environment variables and create build args
+    while IFS= read -r line || [ -n "$line" ]; do
+        # Skip comments and empty lines
+        if [[ $line =~ ^[[:space:]]*# ]] || [[ -z "${line// }" ]]; then
+            continue
+        fi
+        
+        # Extract key=value pairs
+        if [[ $line =~ ^[[:space:]]*([^=]+)=(.*)$ ]]; then
+            key="${BASH_REMATCH[1]// /}"
+            value="${BASH_REMATCH[2]}"
+            
+            # Add as build arg
+            BUILD_ARGS="${BUILD_ARGS} --build-arg ${key}=${value}"
+        fi
+    done < .env.local
+fi
+
+docker build $BUILD_ARGS -t $IMAGE_NAME:latest .
 
 echo -e "${YELLOW}📤 Pushing image to Container Registry...${NC}"
 docker push $IMAGE_NAME:latest

@@ -1,12 +1,12 @@
-import { GoogleGenerativeAI } from "@google/generative-ai"
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || "")
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || "");
 
 // Get Gemini Pro model for multimodal analysis
 export const getGeminiProModel = () => {
-  return genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" })
-}
+  return genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+};
 
 // Health analysis prompt templates
 export const HEALTH_PROMPTS = {
@@ -60,73 +60,85 @@ Medication Analysis:`,
 Remember: You are a supportive companion, not a replacement for professional medical care.
 
 Health Question:`,
-}
+};
 
 // Convert image to base64 for Gemini
-export const imageToBase64 = async (imageFile: File | Blob): Promise<string> => {
+export const imageToBase64 = async (
+  imageFile: File | Blob
+): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = () => {
-      const base64 = (reader.result as string).split(",")[1]
-      resolve(base64)
-    }
-    reader.onerror = reject
-    reader.readAsDataURL(imageFile)
-  })
-}
+      const base64 = (reader.result as string).split(",")[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(imageFile);
+  });
+};
 
 // Convert audio to base64 for Gemini
 export const audioToBase64 = async (audioBlob: Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = () => {
-      const base64 = (reader.result as string).split(",")[1]
-      resolve(base64)
-    }
-    reader.onerror = reject
-    reader.readAsDataURL(audioBlob)
-  })
-}
+      const base64 = (reader.result as string).split(",")[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(audioBlob);
+  });
+};
 
 // Health analysis response type
 export interface HealthAnalysisResponse {
-  analysis: string
-  confidence: "Low" | "Medium" | "High"
-  urgency: "Routine" | "Monitor" | "Seek Care"
-  recommendations: string[]
-  followUpQuestions?: string[]
-  timestamp: string
+  analysis: string;
+  confidence: "Low" | "Medium" | "High";
+  urgency: "Routine" | "Monitor" | "Seek Care";
+  recommendations: string[];
+  followUpQuestions?: string[];
+  timestamp: string;
 }
 
 // Parse Gemini response into structured format
-export const parseHealthAnalysis = (response: string): HealthAnalysisResponse => {
-  const lines = response.split("\n").filter((line) => line.trim())
+export const parseHealthAnalysis = (
+  response: string
+): HealthAnalysisResponse => {
+  const lines = response.split("\n").filter((line) => line.trim());
 
-  let confidence: "Low" | "Medium" | "High" = "Medium"
-  let urgency: "Routine" | "Monitor" | "Seek Care" = "Routine"
-  const recommendations: string[] = []
+  let confidence: "Low" | "Medium" | "High" = "Medium";
+  let urgency: "Routine" | "Monitor" | "Seek Care" = "Routine";
+  const recommendations: string[] = [];
 
   // Extract confidence level
-  const confidenceLine = lines.find((line) => line.toLowerCase().includes("confidence"))
+  const confidenceLine = lines.find((line) =>
+    line.toLowerCase().includes("confidence")
+  );
   if (confidenceLine) {
-    if (confidenceLine.toLowerCase().includes("high")) confidence = "High"
-    else if (confidenceLine.toLowerCase().includes("low")) confidence = "Low"
+    if (confidenceLine.toLowerCase().includes("high")) confidence = "High";
+    else if (confidenceLine.toLowerCase().includes("low")) confidence = "Low";
   }
 
   // Extract urgency level
-  const urgencyLine = lines.find((line) => line.toLowerCase().includes("urgency"))
+  const urgencyLine = lines.find((line) =>
+    line.toLowerCase().includes("urgency")
+  );
   if (urgencyLine) {
-    if (urgencyLine.toLowerCase().includes("seek care")) urgency = "Seek Care"
-    else if (urgencyLine.toLowerCase().includes("monitor")) urgency = "Monitor"
+    if (urgencyLine.toLowerCase().includes("seek care")) urgency = "Seek Care";
+    else if (urgencyLine.toLowerCase().includes("monitor")) urgency = "Monitor";
   }
 
   // Extract recommendations
-  const recStart = lines.findIndex((line) => line.toLowerCase().includes("recommendation"))
+  const recStart = lines.findIndex((line) =>
+    line.toLowerCase().includes("recommendation")
+  );
   if (recStart !== -1) {
     for (let i = recStart + 1; i < lines.length; i++) {
-      const line = lines[i].trim()
+      const line = lines[i].trim();
       if (line && !line.toLowerCase().includes("important:")) {
-        recommendations.push(line.replace(/^\d+\.\s*/, "").replace(/^[-*]\s*/, ""))
+        recommendations.push(
+          line.replace(/^\d+\.\s*/, "").replace(/^[-*]\s*/, "")
+        );
       }
     }
   }
@@ -137,5 +149,5 @@ export const parseHealthAnalysis = (response: string): HealthAnalysisResponse =>
     urgency,
     recommendations: recommendations.slice(0, 5), // Limit to 5 recommendations
     timestamp: new Date().toISOString(),
-  }
-}
+  };
+};
