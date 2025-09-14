@@ -7,6 +7,7 @@ MediVision Assistant - An AI-powered healthcare companion that makes medical ass
 Key Features:
 
 - 🖼️ AI Skin Analysis - Upload photos for instant skin condition assessment
+- 🎥 Video Health Analysis - Upload videos for comprehensive health monitoring and assessment
 - 🎤 Voice Symptom Logger - Record and transcribe health symptoms using speech-to-text
 - 💊 Medication Scanner - OCR-powered medication identification and management
 - 💬 AI Health Chat - Conversational AI for health questions and guidance
@@ -17,55 +18,71 @@ Key Features:
 
 Live Application: https://medivision-assistant-ov3t3b7vaa-uc.a.run.app
 
-GitHub Repository: https://github.com/omkardongre/medi-vision-assistant-ez
+GitHub Repository: https://github.com/omkardongre/medi-vision-assistant-ai
 
 ### Screenshots
 
-![Homepage Dashboard]
+Homepage Dashboard: Clean, accessible dashboard with health summary and quick actions
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/t953kyqweffpg7wdiflt.png)
-Clean, accessible dashboard with health summary and quick actions
 
-![Skin Analysis]
+Skin Analysis: AI-powered skin condition analysis with detailed insights
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/yul1vb2f6ib37v4trlt6.png)
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/npe4ggha14r85n3j9ukw.png)
-AI-powered skin condition analysis with detailed insights
 
-![Voice Logger]
+Voice Logger: Voice-to-text symptom recording with transcription
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/qk52jt47yn8puwqycm2r.png)
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/qfq5rbes56r917w1vhtm.png)
-Voice-to-text symptom recording with transcription
 
-![Accessibility Features]
+Health Chat: Conversational AI for health questions
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/u589w00ngr8cu5upwl8w.png)
 
+Health Records
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/3l9y96zckvbavb7fowvx.png)
+
+Accessibility Features: Comprehensive accessibility toolbar with voice navigation
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/0dayoklfqjd6hgkwki6r.png)
-Comprehensive accessibility toolbar with voice navigation
 
 ## How I Used Google AI Studio
 
 I leveraged Google AI Studio extensively to power the multimodal capabilities:
 
-### 1. **Gemini 2.5 Flash** for All Multimodal Features
+### 1. Gemini 2.5 Flash for Video Health Analysis
 
-- **Image Analysis**: Analyzes uploaded skin photos for dermatological assessment using Gemini's vision capabilities
-- **Voice Processing**: Processes audio recordings for symptom analysis and transcription
-- **Text Chat**: Powers conversational AI health assistant with context awareness
-- **Video Analysis**: Advanced video health monitoring for movement, behavior, and skin condition assessment
-- **Unified Model**: Single Gemini 2.5 Flash model handles all input types (text, image, audio, video) for consistent health insights
+- Integrated Gemini's advanced video analysis capabilities for comprehensive health monitoring
+- Analyzes uploaded videos up to 25MB for movement patterns, posture, gait analysis, and health indicators
+- Provides detailed health assessments with confidence scores and medical recommendations
+- Supports multiple video formats (MP4, MOV, AVI, WebM) with automatic optimization
+
+### 2. Gemini 2.0 Flash Experimental for Skin Analysis
+
+- Integrated Gemini's vision capabilities to analyze uploaded skin photos
+- Provides detailed assessments of skin conditions, moles, rashes, and other dermatological concerns
+- Returns structured health insights with confidence scores and recommendations
+
+### 3. Gemini 2.0 Flash Experimental for Health Chat
+
+- Powers the conversational AI health assistant
+- Processes natural language health questions and provides evidence-based responses
+- Maintains conversation context for follow-up questions
+
+### 4. Multimodal Integration
+
+- Combined text, image, video, and voice inputs for comprehensive health monitoring
 
 ## Multimodal Features
+
+### 🎥 Video + Text Analysis
+
+- Video Health Monitoring: Users upload videos for comprehensive health analysis including movement patterns, posture, and gait
+- Exercise Form Analysis: AI evaluates exercise techniques and provides improvement recommendations
+- Symptom Documentation: Video recordings of symptoms for detailed medical assessment
+- Progress Tracking: Visual health progress monitoring over time with video comparisons
 
 ### 🖼️ Image + Text Analysis
 
 - Skin Photo Analysis: Users upload photos of skin conditions, and Gemini analyzes them for potential health concerns
 - Medication OCR: Scans medication labels and bottles to extract drug information, dosages, and instructions
 - Visual Health Monitoring: Tracks changes in skin conditions over time with AI-powered analysis
-
-### 🎥 Video + Text Analysis
-
-- Video Health Monitoring: Users upload videos for comprehensive health assessment including movement analysis, behavioral indicators, and skin condition tracking
-- Movement Analysis: Assesses gait, balance, coordination, and physical mobility indicators
-- Behavioral Assessment: Detects signs of pain, confusion, distress, or cognitive changes
-- Multi-frame Analysis: Processes video content for temporal health pattern recognition
 
 ### 🎤 Voice + Text Processing
 
@@ -89,13 +106,14 @@ I leveraged Google AI Studio extensively to power the multimodal capabilities:
 
 ### 🔄 Data Integration
 
-- Health Records: All multimodal inputs (images, voice, chat) are stored
+- Health Records: All multimodal inputs (videos, images, voice, chat) are stored and organized
 - Export Capabilities: Users can export their health data for medical consultations
+- Video Storage: Secure video analysis results with privacy protection
 
 ## Technical Implementation
 
 - Frontend: Next.js 15 with TypeScript and Tailwind CSS
-- AI Integration: Google AI Studio with Gemini 2.5 Flash
+- AI Integration: Google AI Studio with Gemini 2.5 Flash (video) and Gemini 2.0 Flash Experimental (image/text)
 - Voice Processing: Web Speech API for speech-to-text and text-to-speech
 - Image Processing: Canvas API for image optimization and preprocessing
 - Deployment: Google Cloud Run with automatic scaling
