@@ -37,6 +37,9 @@ Voice Logger: Voice-to-text symptom recording with transcription
 Health Chat: Conversational AI for health questions
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/u589w00ngr8cu5upwl8w.png)
 
+AI Health Infographics: Professional medical infographics 
+
+
 Health Records
 ![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/3l9y96zckvbavb7fowvx.png)
 
