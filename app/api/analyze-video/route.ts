@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   getGeminiProModel,
-  videoToBase64,
   HEALTH_PROMPTS,
   parseHealthAnalysis,
 } from "@/lib/gemini";
@@ -53,8 +52,9 @@ export async function POST(request: NextRequest) {
       `🎥 Analyzing video: ${videoFile.name}, Type: ${videoFile.type}, Size: ${videoFile.size} bytes`
     );
 
-    // Convert video to base64
-    const videoBase64 = await videoToBase64(videoFile);
+    // Convert video to base64 using Node.js compatible method
+    const videoBuffer = await videoFile.arrayBuffer();
+    const videoBase64 = Buffer.from(videoBuffer).toString('base64');
 
     // Get the appropriate prompt based on analysis type
     let prompt = HEALTH_PROMPTS.videoAnalysis;
