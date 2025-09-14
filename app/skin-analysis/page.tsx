@@ -324,40 +324,43 @@ export default function SkinAnalysisPage() {
 
               {videoPreview && (
                 <div className="space-y-4">
-                  <div className="relative">
+                  <div className="relative w-full max-w-md mx-auto bg-black rounded-lg overflow-hidden">
                     <video
                       ref={setVideoRef}
                       src={videoPreview}
                       controls
-                      className="w-full max-w-md mx-auto rounded-lg border-2 border-border"
+                      className="w-full h-64"
                       onLoadedData={() => {
                         console.log("🎥 Video loaded successfully");
                         setIsVideoLoaded(true);
                       }}
-                      onError={(e) => console.error("🎥 Video load error:", e)}
+                      onError={(e) => {
+                        console.error("🎥 Video load error:", e);
+                      }}
                       onCanPlay={() => {
                         if (!isVideoLoaded) {
                           console.log("🎥 Video can play");
                           setIsVideoLoaded(true);
                         }
                       }}
-                      onLoadedMetadata={() => {
+                      onLoadedMetadata={(e) => {
                         console.log("🎥 Video metadata loaded");
+                        const video = e.target as HTMLVideoElement;
+                        console.log("🎥 Video dimensions:", {
+                          videoWidth: video.videoWidth,
+                          videoHeight: video.videoHeight,
+                          duration: video.duration
+                        });
                       }}
-                      preload="auto"
+                      preload="metadata"
                       playsInline
-                      muted={false}
-                      style={{
-                        minHeight: "200px",
-                        objectFit: "contain",
-                        backgroundColor: "#000",
-                      }}
                     />
-                    {/* Fullscreen button */}
+                    {/* Custom fullscreen button */}
                     <button
                       onClick={handleFullscreen}
-                      className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-all z-10"
+                      className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white p-1.5 rounded hover:bg-opacity-90 transition-all"
                       title="Fullscreen"
+                      style={{ zIndex: 20 }}
                     >
                       <Maximize className="w-4 h-4" />
                     </button>
