@@ -137,10 +137,14 @@ export function useVoiceCommands({ enabled, onCommandRecognized, onListening }: 
     // Check microphone permissions
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop()); // Stop the stream immediately
-      console.log("Microphone permission granted");
+      console.log("🎤 Microphone permission granted");
+      console.log("🎤 Available audio tracks:", stream.getAudioTracks().length);
+      stream.getTracks().forEach(track => {
+        console.log("🎤 Audio track:", track.label, track.enabled);
+        track.stop(); // Stop the stream immediately
+      });
     } catch (error) {
-      console.error("Microphone permission denied:", error);
+      console.error("❌ Microphone permission denied:", error);
       speak("Microphone permission is required for voice commands. Please allow microphone access and try again.");
       return;
     }
@@ -153,19 +157,22 @@ export function useVoiceCommands({ enabled, onCommandRecognized, onListening }: 
     recognitionRef.current.lang = "en-US"
 
     recognitionRef.current.onstart = () => {
-      console.log("Voice recognition started");
+      console.log("🎤 Voice recognition started - listening for commands");
+      speak("Listening for voice commands. Say a command now.");
       isListeningRef.current = true
       onListening?.(true)
     }
 
     recognitionRef.current.onend = () => {
+      console.log("🎤 Voice recognition ended");
       isListeningRef.current = false
       onListening?.(false)
     }
 
     recognitionRef.current.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript
-      console.log("Voice command received:", transcript);
+      console.log("🎤 Voice command received:", transcript);
+      console.log("🎤 Full event results:", event.results);
       processCommand(transcript)
     }
 
@@ -189,6 +196,14 @@ export function useVoiceCommands({ enabled, onCommandRecognized, onListening }: 
 
     console.log("Starting speech recognition...");
     recognitionRef.current.start()
+    
+    // Add a timeout to detect if recognition doesn't start
+    setTimeout(() => {
+      if (!isListeningRef.current) {
+        console.log("⚠️ Voice recognition didn't start after 3 seconds");
+        speak("Voice recognition failed to start. Please check microphone permissions.");
+      }
+    }, 3000);
   }, [enabled, processCommand, onListening])
 
   const stopListening = useCallback(() => {
