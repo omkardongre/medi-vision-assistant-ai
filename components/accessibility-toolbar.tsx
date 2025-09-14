@@ -139,14 +139,14 @@ export function AccessibilityToolbar() {
   };
 
   return (
-    <div className="fixed top-16 right-4 z-30 bg-card border border-border rounded-lg shadow-lg">
+    <div className="fixed bottom-4 right-4 z-30 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg transition-all duration-200 ease-in-out">
       {/* Always visible toggle button */}
       <div className="p-2">
         <Button
           variant="outline"
           size="sm"
           onClick={toggleExpanded}
-          className="touch-target flex items-center gap-2"
+          className="touch-target flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600"
           aria-label={
             isExpanded
               ? "Collapse accessibility toolbar"
@@ -169,7 +169,7 @@ export function AccessibilityToolbar() {
 
       {/* Collapsible content */}
       {isExpanded && (
-        <div className="p-2 pt-0 space-y-2">
+        <div className="p-2 pt-0 space-y-2 bg-white dark:bg-gray-800">
           {/* Voice Controls */}
           <div className="flex gap-1">
             <Button
