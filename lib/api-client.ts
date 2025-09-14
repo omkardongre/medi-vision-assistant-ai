@@ -107,8 +107,8 @@ export class MediVisionAPI {
     }
 
     return {
-      message: data.message,
-      emergency: data.emergency,
+      message: data.response,
+      emergency: data.analysis?.emergencyAlert,
     };
   }
 

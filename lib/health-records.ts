@@ -205,18 +205,30 @@ export async function deleteHealthRecord(id: string) {
 }
 
 // Conversation Functions
-export async function saveConversation(title: string, messages: any[]) {
+export async function saveConversation(title: string, messages: any[], authToken?: string) {
   try {
     const supabase = createSupabaseClient();
 
     // Get current user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
+    let user;
+    if (authToken) {
+      // Use provided auth token
+      const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(authToken);
+      if (tokenError || !tokenUser) {
+        throw new Error("Invalid auth token");
+      }
+      user = tokenUser;
+    } else {
+      // Fallback to current session
+      const {
+        data: { user: sessionUser },
+        error: authError,
+      } = await supabase.auth.getUser();
 
-    if (authError || !user) {
-      throw new Error("User not authenticated");
+      if (authError || !sessionUser) {
+        throw new Error("User not authenticated");
+      }
+      user = sessionUser;
     }
 
     const { data, error } = await supabase
@@ -245,9 +257,31 @@ export async function saveConversation(title: string, messages: any[]) {
   }
 }
 
-export async function updateConversation(id: string, messages: any[]) {
+export async function updateConversation(id: string, messages: any[], authToken?: string) {
   try {
     const supabase = createSupabaseClient();
+
+    // Get current user
+    let user;
+    if (authToken) {
+      // Use provided auth token
+      const { data: { user: tokenUser }, error: tokenError } = await supabase.auth.getUser(authToken);
+      if (tokenError || !tokenUser) {
+        throw new Error("Invalid auth token");
+      }
+      user = tokenUser;
+    } else {
+      // Fallback to current session
+      const {
+        data: { user: sessionUser },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError || !sessionUser) {
+        throw new Error("User not authenticated");
+      }
+      user = sessionUser;
+    }
 
     const { data, error } = await supabase
       .from("chat_conversations")
@@ -256,6 +290,7 @@ export async function updateConversation(id: string, messages: any[]) {
         updated_at: new Date().toISOString(),
       })
       .eq("id", id)
+      .eq("user_id", user.id) // Ensure user can only update their own conversations
       .select()
       .single();
 

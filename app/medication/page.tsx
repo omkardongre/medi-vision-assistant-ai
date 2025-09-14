@@ -264,23 +264,21 @@ export default function MedicationPage() {
                           "Test reminder sent! Please set up regular reminders in your phone's notification settings for daily medication reminders."
                         );
                       } else if (Notification.permission !== "denied") {
-                        Notification.requestPermission().then(
-                          (permission) => {
-                            if (permission === "granted") {
-                              new Notification("MediVision Reminder", {
-                                body: "Medication reminder notifications are now enabled. Set up regular reminders in your phone's settings.",
-                                icon: "/icon-192.png",
-                              });
-                              speak(
-                                "Notifications enabled! Please set up regular medication reminders in your phone's settings."
-                              );
-                            } else {
-                              speak(
-                                "Please enable notifications in your browser settings and set up medication reminders in your phone's clock or calendar app."
-                              );
-                            }
+                        Notification.requestPermission().then((permission) => {
+                          if (permission === "granted") {
+                            new Notification("MediVision Reminder", {
+                              body: "Medication reminder notifications are now enabled. Set up regular reminders in your phone's settings.",
+                              icon: "/icon-192.png",
+                            });
+                            speak(
+                              "Notifications enabled! Please set up regular medication reminders in your phone's settings."
+                            );
+                          } else {
+                            speak(
+                              "Please enable notifications in your browser settings and set up medication reminders in your phone's clock or calendar app."
+                            );
                           }
-                        );
+                        });
                       } else {
                         speak(
                           "Notifications are blocked. Please set up medication reminders in your phone's clock app or calendar."
@@ -301,10 +299,11 @@ export default function MedicationPage() {
               {/* Important Disclaimer */}
               <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
                 <p className="text-sm text-gray-600">
-                  <strong>Important:</strong> This information is for reference only and should not
-                  replace professional medical or pharmaceutical advice.
-                  Always consult your doctor or pharmacist before starting,
-                  stopping, or changing any medication.
+                  <strong>Important:</strong> This information is for reference
+                  only and should not replace professional medical or
+                  pharmaceutical advice. Always consult your doctor or
+                  pharmacist before starting, stopping, or changing any
+                  medication.
                 </p>
               </div>
 

@@ -14,6 +14,10 @@ export async function POST(request: NextRequest) {
       conversationId = null,
     } = await request.json();
 
+    // Extract auth token from headers
+    const authHeader = request.headers.get("Authorization");
+    const authToken = authHeader?.replace("Bearer ", "");
+
     if (!message?.trim()) {
       return NextResponse.json(
         { error: "No message provided" },
@@ -71,7 +75,8 @@ export async function POST(request: NextRequest) {
         // Update existing conversation
         savedConversation = await updateConversation(
           conversationId,
-          updatedHistory
+          updatedHistory,
+          authToken
         );
       } else {
         // Create new conversation with title based on first message
@@ -79,23 +84,12 @@ export async function POST(request: NextRequest) {
           message.length > 50 ? message.substring(0, 50) + "..." : message;
         savedConversation = await saveConversation(
           `Health Chat: ${title}`,
-          updatedHistory
+          updatedHistory,
+          authToken
         );
       }
 
-      // Save conversation with emergency alert if detected
-      if (savedConversation) {
-        await saveConversation({
-          id: savedConversation.id,
-          message,
-          response: aiResponse,
-          timestamp: new Date(),
-          analysis: {
-            emergency: finalEmergencyAlert ? true : false,
-            emergencyAlert: finalEmergencyAlert || undefined,
-          },
-        });
-      }
+      // Conversation already saved above, no need to save again
 
       return NextResponse.json({
         success: true,
