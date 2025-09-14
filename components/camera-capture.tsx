@@ -101,13 +101,18 @@ export function CameraCapture({ onCapture, onAnalyze, isAnalyzing = false }: Cam
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Camera viewfinder or captured image */}
-        <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
+        <div className="relative aspect-video bg-muted rounded-lg overflow-hidden border-2 border-border">
           {capturedImage ? (
-            <img
-              src={capturedImage || "/placeholder.svg"}
-              alt="Captured for analysis"
-              className="w-full h-full object-cover"
-            />
+            <div className="relative w-full h-full">
+              <img
+                src={capturedImage || "/placeholder.svg"}
+                alt="Captured for analysis"
+                className="w-full h-full object-cover rounded-lg"
+              />
+              <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-sm font-medium">
+                ✓ Image Ready
+              </div>
+            </div>
           ) : (
             <>
               <video
@@ -181,7 +186,17 @@ export function CameraCapture({ onCapture, onAnalyze, isAnalyzing = false }: Cam
                 className="touch-target bg-primary"
                 disabled={isAnalyzing}
               >
-                {isAnalyzing ? "Analyzing..." : "Analyze Photo"}
+                {isAnalyzing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 mr-2" />
+                    Analyze Photo
+                  </>
+                )}
               </Button>
               <Button onClick={retakePhoto} variant="outline" size="lg" className="touch-target bg-transparent">
                 <RotateCcw className="w-4 h-4 mr-2" />
