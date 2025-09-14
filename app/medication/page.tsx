@@ -21,12 +21,13 @@ import {
   Info,
   Volume2,
   Clock,
+  Square,
 } from "lucide-react";
 import type { HealthAnalysisResponse } from "@/lib/gemini";
 
 export default function MedicationPage() {
   const router = useRouter();
-  const { speak, hasError, isSpeaking } = useSpeech();
+  const { speak, hasError, isSpeaking, stop } = useSpeech();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<HealthAnalysisResponse | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -125,26 +126,39 @@ export default function MedicationPage() {
                 <CardTitle className="font-work-sans">
                   Medication Information
                 </CardTitle>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    console.log(
-                      "Listen button clicked, analysis text:",
-                      analysis.analysis
-                    );
-                    speak(analysis.analysis);
-                  }}
-                  className="touch-target"
-                  disabled={isSpeaking}
-                >
-                  <Volume2 className="w-4 h-4 mr-2" />
-                  {isSpeaking
-                    ? "Speaking..."
-                    : hasError
-                    ? "Retry Listen"
-                    : "Listen"}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      console.log(
+                        "Listen button clicked, analysis text:",
+                        analysis.analysis
+                      );
+                      speak(analysis.analysis);
+                    }}
+                    className="touch-target"
+                    disabled={isSpeaking}
+                  >
+                    <Volume2 className="w-4 h-4 mr-2" />
+                    {isSpeaking
+                      ? "Speaking..."
+                      : hasError
+                      ? "Retry Listen"
+                      : "Listen"}
+                  </Button>
+                  {isSpeaking && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={stop}
+                      className="touch-target"
+                    >
+                      <Square className="w-4 h-4 mr-2" />
+                      Stop
+                    </Button>
+                  )}
+                </div>
               </div>
               <CardDescription>
                 AI-powered medication identification and information

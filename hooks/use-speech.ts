@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
 interface UseSpeechOptions {
   rate?: number;
@@ -17,6 +17,35 @@ export function useSpeech(options: UseSpeechOptions = {}) {
   const [hasError, setHasError] = useState(false);
 
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  // Cleanup on unmount and page unload
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        speechSynthesis.cancel();
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden && typeof window !== "undefined" && "speechSynthesis" in window) {
+        speechSynthesis.cancel();
+        setIsSpeaking(false);
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      
+      // Cleanup speech on unmount
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        speechSynthesis.cancel();
+      }
+    };
+  }, []);
 
   const speak = useCallback(
     (text: string) => {
@@ -48,11 +77,11 @@ export function useSpeech(options: UseSpeechOptions = {}) {
           setIsSpeaking(false);
         };
         utterance.onerror = (event) => {
-          console.error("Speech error:", event);
+          console.error("Speech error:", event.error || "Unknown error");
           setIsSpeaking(false);
           setHasError(true);
           
-          // Try fallback approach
+          // Try fallback approach only for synthesis-failed errors
           if (event.error === 'synthesis-failed') {
             console.log("Trying fallback speech synthesis...");
             setTimeout(() => {
@@ -69,8 +98,8 @@ export function useSpeech(options: UseSpeechOptions = {}) {
                   setHasError(false);
                 };
                 fallbackUtterance.onend = () => setIsSpeaking(false);
-                fallbackUtterance.onerror = () => {
-                  console.error("Fallback speech also failed");
+                fallbackUtterance.onerror = (fallbackEvent) => {
+                  console.error("Fallback speech also failed:", fallbackEvent.error || "Unknown error");
                   setIsSpeaking(false);
                   setHasError(true);
                 };
@@ -106,8 +135,15 @@ export function useSpeech(options: UseSpeechOptions = {}) {
 
   const stop = useCallback(() => {
     if (isSupported) {
-      speechSynthesis.cancel();
-      setIsSpeaking(false);
+      try {
+        speechSynthesis.cancel();
+        setIsSpeaking(false);
+        setHasError(false);
+        console.log("Speech stopped");
+      } catch (error) {
+        console.error("Error stopping speech:", error);
+        setIsSpeaking(false);
+      }
     }
   }, [isSupported]);
 
