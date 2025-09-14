@@ -30,7 +30,6 @@ import {
   Camera,
   Video,
   Upload,
-  Maximize,
 } from "lucide-react";
 import type { HealthAnalysisResponse } from "@/lib/gemini";
 
@@ -44,8 +43,6 @@ export default function SkinAnalysisPage() {
   const [analysisMode, setAnalysisMode] = useState<"image" | "video">("image");
   const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
-  const [videoRef, setVideoRef] = useState<HTMLVideoElement | null>(null);
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
   // Cleanup video preview URL when component unmounts
   useEffect(() => {
@@ -100,7 +97,6 @@ export default function SkinAnalysisPage() {
       });
 
       setSelectedVideo(file);
-      setIsVideoLoaded(false); // Reset video loaded state
 
       // Create object URL for video preview
       const url = URL.createObjectURL(file);
@@ -157,18 +153,6 @@ export default function SkinAnalysisPage() {
       );
     } finally {
       setIsAnalyzing(false);
-    }
-  };
-
-  const handleFullscreen = () => {
-    if (videoRef) {
-      if (videoRef.requestFullscreen) {
-        videoRef.requestFullscreen();
-      } else if ((videoRef as any).webkitRequestFullscreen) {
-        (videoRef as any).webkitRequestFullscreen();
-      } else if ((videoRef as any).msRequestFullscreen) {
-        (videoRef as any).msRequestFullscreen();
-      }
     }
   };
 
@@ -324,46 +308,23 @@ export default function SkinAnalysisPage() {
 
               {videoPreview && (
                 <div className="space-y-4">
-                  <div className="relative w-full max-w-md mx-auto bg-black rounded-lg overflow-hidden">
+                  <div className="relative">
                     <video
-                      ref={setVideoRef}
                       src={videoPreview}
                       controls
-                      className="w-full h-64"
-                      onLoadedData={() => {
-                        console.log("🎥 Video loaded successfully");
-                        setIsVideoLoaded(true);
-                      }}
-                      onError={(e) => {
-                        console.error("🎥 Video load error:", e);
-                      }}
-                      onCanPlay={() => {
-                        if (!isVideoLoaded) {
-                          console.log("🎥 Video can play");
-                          setIsVideoLoaded(true);
-                        }
-                      }}
-                      onLoadedMetadata={(e) => {
-                        console.log("🎥 Video metadata loaded");
-                        const video = e.target as HTMLVideoElement;
-                        console.log("🎥 Video dimensions:", {
-                          videoWidth: video.videoWidth,
-                          videoHeight: video.videoHeight,
-                          duration: video.duration
-                        });
-                      }}
-                      preload="metadata"
+                      className="w-full max-w-md mx-auto rounded-lg border-2 border-border"
+                      onLoadedData={() =>
+                        console.log("🎥 Video loaded successfully")
+                      }
+                      onError={(e) => console.error("🎥 Video load error:", e)}
+                      onCanPlay={() => console.log("🎥 Video can play")}
+                      preload="auto"
                       playsInline
+                      style={{
+                        minHeight: "200px",
+                        objectFit: "contain",
+                      }}
                     />
-                    {/* Custom fullscreen button */}
-                    <button
-                      onClick={handleFullscreen}
-                      className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white p-1.5 rounded hover:bg-opacity-90 transition-all"
-                      title="Fullscreen"
-                      style={{ zIndex: 20 }}
-                    >
-                      <Maximize className="w-4 h-4" />
-                    </button>
                   </div>
                   <Button
                     onClick={handleVideoAnalyze}

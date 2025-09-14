@@ -622,7 +622,7 @@ Complete these 7 tests successfully = **Winning Demo Ready!** 🏆
 - ✅ Speech synthesis works
 - ✅ Analysis is saved to health records (if authenticated)
 
-### **Test 20.2: Video Analysis Error Handling** - Status: [ ] PASS [ ] FAIL [ ] SKIP
+### **Test 20.2: Video Analysis Error Handling** - Status: [X] PASS [ ] FAIL [ ] SKIP
 
 1. Try uploading a file that's not a video
 2. Try uploading a video larger than 25MB
@@ -635,7 +635,7 @@ Complete these 7 tests successfully = **Winning Demo Ready!** 🏆
 - ✅ File size validation works
 - ✅ Graceful handling of analysis failures
 
-### **Test 20.3: Video Analysis Accessibility** - Status: [ ] PASS [ ] FAIL [ ] SKIP
+### **Test 20.3: Video Analysis Accessibility** - Status: [X] PASS [ ] FAIL [ ] SKIP
 
 1. Test with screen reader
 2. Test keyboard navigation
