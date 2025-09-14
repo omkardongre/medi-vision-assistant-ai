@@ -341,99 +341,99 @@ export default function ChatPage() {
         </div>
       </header>
 
-      {/* Chat Messages */}
-      <div className="flex-1 container mx-auto px-4 py-6 max-w-4xl">
-        {isLoadingConversations ? (
-          <div className="flex items-center justify-center h-32">
-            <div className="text-muted-foreground">Loading chat history...</div>
-          </div>
-        ) : (
-          <div className="space-y-4 mb-6">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex gap-3 ${
-                message.role === "user" ? "justify-end" : "justify-start"
-              }`}
-            >
-              {message.role === "assistant" && (
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-4 h-4 text-primary-foreground" />
-                </div>
-              )}
-
-              <Card
-                className={`max-w-[80%] ${
-                  message.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : ""
-                }`}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="prose prose-sm prose-gray max-w-none flex-1">
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap m-0">
-                        {message.content}
-                      </p>
-                    </div>
-                    {message.role === "assistant" && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => speakMessage(message.content)}
-                        className="touch-target flex-shrink-0 h-8 w-8 p-0"
-                        aria-label="Listen to message"
-                      >
-                        <Volume2 className="w-3 h-3" />
-                      </Button>
-                    )}
-                  </div>
-                  <p className="text-xs opacity-70 mt-2">
-                    {message.timestamp.toLocaleTimeString()}
-                  </p>
-                </CardContent>
-              </Card>
-
-              {message.role === "user" && (
-                <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                  <User className="w-4 h-4 text-muted-foreground" />
-                </div>
-              )}
+        {/* Chat Messages */}
+        <div className="flex-1 container mx-auto px-4 py-6 max-w-4xl">
+          {isLoadingConversations ? (
+            <div className="flex items-center justify-center h-32">
+              <div className="text-muted-foreground">Loading chat history...</div>
             </div>
-          ))}
-
-          {isLoading && (
-            <div className="flex gap-3 justify-start">
-              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                <Bot className="w-4 h-4 text-primary-foreground" />
-              </div>
-              <Card className="max-w-[80%]">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2">
-                    <div className="flex gap-1">
-                      <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" />
-                      <div
-                        className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
-                        style={{ animationDelay: "0.1s" }}
-                      />
-                      <div
-                        className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
-                        style={{ animationDelay: "0.2s" }}
-                      />
+          ) : (
+            <div className="space-y-4 mb-6">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex gap-3 ${
+                    message.role === "user" ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  {message.role === "assistant" && (
+                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                      <Bot className="w-4 h-4 text-primary-foreground" />
                     </div>
-                    <span className="text-sm text-muted-foreground">
-                      Thinking...
-                    </span>
+                  )}
+
+                  <Card
+                    className={`max-w-[80%] ${
+                      message.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : ""
+                    }`}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="prose prose-sm prose-gray max-w-none flex-1">
+                          <p className="text-sm leading-relaxed whitespace-pre-wrap m-0">
+                            {message.content}
+                          </p>
+                        </div>
+                        {message.role === "assistant" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => speakMessage(message.content)}
+                            className="touch-target flex-shrink-0 h-8 w-8 p-0"
+                            aria-label="Listen to message"
+                          >
+                            <Volume2 className="w-3 h-3" />
+                          </Button>
+                        )}
+                      </div>
+                      <p className="text-xs opacity-70 mt-2">
+                        {message.timestamp.toLocaleTimeString()}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  {message.role === "user" && (
+                    <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
+                      <User className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {isLoading && (
+                <div className="flex gap-3 justify-start">
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                    <Bot className="w-4 h-4 text-primary-foreground" />
                   </div>
-                </CardContent>
-              </Card>
+                  <Card className="max-w-[80%]">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-2">
+                        <div className="flex gap-1">
+                          <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" />
+                          <div
+                            className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                            style={{ animationDelay: "0.1s" }}
+                          />
+                          <div
+                            className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                            style={{ animationDelay: "0.2s" }}
+                          />
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                          Thinking...
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              <div ref={messagesEndRef} />
             </div>
           )}
-
-          <div ref={messagesEndRef} />
-          </div>
-        )}
-      </div>
+        </div>
 
       {/* Input Area */}
       <div className="border-t border-border bg-card">
