@@ -140,13 +140,13 @@ export default function MedicationPage() {
                     onClick={() => {
                       if (isPaused) {
                         resume();
-                       } else {
-                         console.log(
-                           "Listen button clicked, analysis text:",
-                           analysis.analysis
-                         );
-                         speak(formatAnalysisText(analysis.analysis));
-                       }
+                      } else {
+                        console.log(
+                          "Listen button clicked, analysis text:",
+                          analysis.analysis
+                        );
+                        speak(formatAnalysisText(analysis.analysis));
+                      }
                     }}
                     className="touch-target"
                     disabled={isSpeaking && !isPaused}
@@ -211,152 +211,101 @@ export default function MedicationPage() {
               </div>
 
               {/* Analysis Text */}
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border border-blue-200">
-                <h4 className="font-bold mb-4 font-work-sans text-xl text-gray-800 flex items-center">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
+              <div className="bg-white p-6 rounded-lg border border-gray-200">
+                <h4 className="text-xl font-semibold mb-4 text-gray-800">
                   Medication Details
                 </h4>
-                {(() => {
-                  const sections = parseAnalysisSections(analysis.analysis);
-                  if (sections.length > 0) {
-                    return (
-                      <div className="space-y-6">
-                        {sections.map((section, index) => (
-                          <div key={index} className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-400">
-                            <h5 className="font-semibold text-lg mb-3 text-blue-700 flex items-center">
-                              <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-full mr-2">
-                                {index + 1}
-                              </span>
-                              {section.title}
-                            </h5>
-                            <div className="text-gray-700 leading-relaxed space-y-2">
-                              {section.content.split('\n').filter(line => line.trim()).map((line, lineIndex) => (
-                                <p key={lineIndex} className="flex items-start">
-                                  <span className="text-blue-500 mr-2 mt-1">•</span>
-                                  <span>{line.trim()}</span>
-                                </p>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  } else {
-                    return (
-                      <div className="bg-white p-4 rounded-lg">
-                        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                          {formatAnalysisText(analysis.analysis)}
-                        </p>
-                      </div>
-                    );
-                  }
-                })()}
+                <div className="prose prose-gray max-w-none">
+                  <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                    {formatAnalysisText(analysis.analysis)}
+                  </p>
+                </div>
               </div>
 
               {/* Recommendations */}
               {analysis.recommendations.length > 0 && (
-                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl border border-yellow-200">
-                  <h4 className="font-bold mb-4 font-work-sans text-xl text-gray-800 flex items-center">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
+                <div className="bg-white p-6 rounded-lg border border-gray-200">
+                  <h4 className="text-xl font-semibold mb-4 text-gray-800">
                     Important Information
                   </h4>
-                  <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <ul className="space-y-3">
-                      {analysis.recommendations.map((rec, index) => (
-                        <li
-                          key={index}
-                          className="text-gray-700 flex items-start gap-3"
-                        >
-                          <span className="bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1 rounded-full mt-0.5 flex-shrink-0">
-                            {index + 1}
-                          </span>
-                          <span className="leading-relaxed">{formatAnalysisText(rec)}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  <ul className="space-y-3">
+                    {analysis.recommendations.map((rec, index) => (
+                      <li key={index} className="text-gray-700 leading-relaxed">
+                        {formatAnalysisText(rec)}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
 
               {/* Medication Reminders */}
-              <Card className="bg-blue-50 border-blue-200">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-work-sans flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    Medication Reminders
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <p className="text-sm text-blue-800 mb-3">
-                    Set up reminders to take your medication on time
-                  </p>
-                  <Button
-                    size="sm"
-                    className="touch-target"
-                    onClick={() => {
-                      // Create a simple reminder using browser notifications
-                      if ("Notification" in window) {
-                        if (Notification.permission === "granted") {
-                          // Create immediate test notification
-                          new Notification("MediVision Reminder", {
-                            body: "This is a test reminder for your medication. Set up regular reminders in your phone's settings.",
-                            icon: "/icon-192.png",
-                          });
-                          speak(
-                            "Test reminder sent! Please set up regular reminders in your phone's notification settings for daily medication reminders."
-                          );
-                        } else if (Notification.permission !== "denied") {
-                          Notification.requestPermission().then(
-                            (permission) => {
-                              if (permission === "granted") {
-                                new Notification("MediVision Reminder", {
-                                  body: "Medication reminder notifications are now enabled. Set up regular reminders in your phone's settings.",
-                                  icon: "/icon-192.png",
-                                });
-                                speak(
-                                  "Notifications enabled! Please set up regular medication reminders in your phone's settings."
-                                );
-                              } else {
-                                speak(
-                                  "Please enable notifications in your browser settings and set up medication reminders in your phone's clock or calendar app."
-                                );
-                              }
+              <div className="bg-white p-6 rounded-lg border border-gray-200">
+                <h4 className="text-lg font-semibold mb-3 text-gray-800 flex items-center gap-2">
+                  <Clock className="w-5 h-5" />
+                  Medication Reminders
+                </h4>
+                <p className="text-gray-600 mb-4">
+                  Set up reminders to take your medication on time
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="touch-target"
+                  onClick={() => {
+                    // Create a simple reminder using browser notifications
+                    if ("Notification" in window) {
+                      if (Notification.permission === "granted") {
+                        // Create immediate test notification
+                        new Notification("MediVision Reminder", {
+                          body: "This is a test reminder for your medication. Set up regular reminders in your phone's settings.",
+                          icon: "/icon-192.png",
+                        });
+                        speak(
+                          "Test reminder sent! Please set up regular reminders in your phone's notification settings for daily medication reminders."
+                        );
+                      } else if (Notification.permission !== "denied") {
+                        Notification.requestPermission().then(
+                          (permission) => {
+                            if (permission === "granted") {
+                              new Notification("MediVision Reminder", {
+                                body: "Medication reminder notifications are now enabled. Set up regular reminders in your phone's settings.",
+                                icon: "/icon-192.png",
+                              });
+                              speak(
+                                "Notifications enabled! Please set up regular medication reminders in your phone's settings."
+                              );
+                            } else {
+                              speak(
+                                "Please enable notifications in your browser settings and set up medication reminders in your phone's clock or calendar app."
+                              );
                             }
-                          );
-                        } else {
-                          speak(
-                            "Notifications are blocked. Please set up medication reminders in your phone's clock app or calendar."
-                          );
-                        }
+                          }
+                        );
                       } else {
                         speak(
-                          "Notifications not supported. Please set up medication reminders in your phone's clock app or calendar."
+                          "Notifications are blocked. Please set up medication reminders in your phone's clock app or calendar."
                         );
                       }
-                    }}
-                  >
-                    Set Reminder
-                  </Button>
-                </CardContent>
-              </Card>
+                    } else {
+                      speak(
+                        "Notifications not supported. Please set up medication reminders in your phone's clock app or calendar."
+                      );
+                    }
+                  }}
+                >
+                  <Clock className="w-4 h-4 mr-2" />
+                  Set Reminder
+                </Button>
+              </div>
 
               {/* Important Disclaimer */}
-              <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
-                <div className="flex items-start gap-2">
-                  <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm text-red-800 font-medium mb-1">
-                      Important Safety Information
-                    </p>
-                    <p className="text-sm text-red-700">
-                      This information is for reference only and should not
-                      replace professional medical or pharmaceutical advice.
-                      Always consult your doctor or pharmacist before starting,
-                      stopping, or changing any medication. If you experience
-                      any adverse effects, seek immediate medical attention.
-                    </p>
-                  </div>
-                </div>
+              <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+                <p className="text-sm text-gray-600">
+                  <strong>Important:</strong> This information is for reference only and should not
+                  replace professional medical or pharmaceutical advice.
+                  Always consult your doctor or pharmacist before starting,
+                  stopping, or changing any medication.
+                </p>
               </div>
 
               {/* Action Buttons */}

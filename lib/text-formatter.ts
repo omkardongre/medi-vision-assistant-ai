@@ -16,6 +16,9 @@ export function cleanMarkdownText(text: string): string {
   cleaned = cleaned.replace(/\s+\*\s+/g, ' ');
   cleaned = cleaned.replace(/^\*\s+/gm, '');
   
+  // Clean up section titles that might have asterisks
+  cleaned = cleaned.replace(/\*\*(\d+\.\s[^*]+)\*\*/g, '$1');
+  
   // Clean up extra whitespace
   cleaned = cleaned.replace(/\n\s*\n\s*\n/g, '\n\n');
   cleaned = cleaned.trim();

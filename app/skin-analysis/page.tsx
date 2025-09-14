@@ -224,76 +224,36 @@ export default function SkinAnalysisPage() {
               </div>
 
               {/* Analysis Text */}
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-xl border border-green-200">
-                <h4 className="font-bold mb-4 font-work-sans text-xl text-gray-800 flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
+              <div className="bg-white p-6 rounded-lg border border-gray-200">
+                <h4 className="text-xl font-semibold mb-4 text-gray-800">
                   Assessment
                 </h4>
-                {(() => {
-                  const sections = parseAnalysisSections(analysis.analysis);
-                  if (sections.length > 0) {
-                    return (
-                      <div className="space-y-6">
-                        {sections.map((section, index) => (
-                          <div key={index} className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-green-400">
-                            <h5 className="font-semibold text-lg mb-3 text-green-700 flex items-center">
-                              <span className="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full mr-2">
-                                {index + 1}
-                              </span>
-                              {section.title}
-                            </h5>
-                            <div className="text-gray-700 leading-relaxed space-y-2">
-                              {section.content.split('\n').filter(line => line.trim()).map((line, lineIndex) => (
-                                <p key={lineIndex} className="flex items-start">
-                                  <span className="text-green-500 mr-2 mt-1">•</span>
-                                  <span>{line.trim()}</span>
-                                </p>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  } else {
-                    return (
-                      <div className="bg-white p-4 rounded-lg">
-                        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                          {formatAnalysisText(analysis.analysis)}
-                        </p>
-                      </div>
-                    );
-                  }
-                })()}
+                <div className="prose prose-gray max-w-none">
+                  <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                    {formatAnalysisText(analysis.analysis)}
+                  </p>
+                </div>
               </div>
 
               {/* Recommendations */}
               {analysis.recommendations.length > 0 && (
-                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl border border-yellow-200">
-                  <h4 className="font-bold mb-4 font-work-sans text-xl text-gray-800 flex items-center">
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
+                <div className="bg-white p-6 rounded-lg border border-gray-200">
+                  <h4 className="text-xl font-semibold mb-4 text-gray-800">
                     Recommendations
                   </h4>
-                  <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <ul className="space-y-3">
-                      {analysis.recommendations.map((rec, index) => (
-                        <li
-                          key={index}
-                          className="text-gray-700 flex items-start gap-3"
-                        >
-                          <span className="bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1 rounded-full mt-0.5 flex-shrink-0">
-                            {index + 1}
-                          </span>
-                          <span className="leading-relaxed">{formatAnalysisText(rec)}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  <ul className="space-y-3">
+                    {analysis.recommendations.map((rec, index) => (
+                      <li key={index} className="text-gray-700 leading-relaxed">
+                        {formatAnalysisText(rec)}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               )}
 
               {/* Important Disclaimer */}
-              <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-                <p className="text-sm text-yellow-800">
+              <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+                <p className="text-sm text-gray-600">
                   <strong>Important:</strong> This analysis is for informational
                   purposes only and should not replace professional medical
                   advice. Please consult with a healthcare provider for proper
