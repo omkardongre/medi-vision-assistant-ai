@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,6 +40,15 @@ export default function SkinAnalysisPage() {
   const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
 
+  // Cleanup video preview URL when component unmounts
+  useEffect(() => {
+    return () => {
+      if (videoPreview) {
+        URL.revokeObjectURL(videoPreview);
+      }
+    };
+  }, [videoPreview]);
+
   const handleImageCapture = (imageData: string) => {
     setCapturedImage(imageData);
     speak(
@@ -77,9 +86,19 @@ export default function SkinAnalysisPage() {
   const handleVideoSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      console.log("🎥 Video file selected:", {
+        name: file.name,
+        type: file.type,
+        size: file.size
+      });
+      
       setSelectedVideo(file);
+      
+      // Create object URL for video preview
       const url = URL.createObjectURL(file);
+      console.log("🎥 Video preview URL created:", url);
       setVideoPreview(url);
+      
       speak("Video selected successfully. You can now analyze it.");
     }
   };
@@ -274,11 +293,20 @@ export default function SkinAnalysisPage() {
 
               {videoPreview && (
                 <div className="space-y-4">
-                  <video
-                    src={videoPreview}
-                    controls
-                    className="w-full max-w-md mx-auto rounded-lg"
-                  />
+                  <div className="relative">
+                    <video
+                      src={videoPreview}
+                      controls
+                      className="w-full max-w-md mx-auto rounded-lg border-2 border-border"
+                      onLoadedData={() => console.log("🎥 Video loaded successfully")}
+                      onError={(e) => console.error("🎥 Video load error:", e)}
+                      onCanPlay={() => console.log("🎥 Video can play")}
+                      preload="metadata"
+                    />
+                    <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-sm font-medium">
+                      ✓ Video Ready
+                    </div>
+                  </div>
                   <Button
                     onClick={handleVideoAnalyze}
                     disabled={isAnalyzing}
