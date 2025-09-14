@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CameraCapture } from "@/components/camera-capture";
+import { ImagenGenerator } from "@/components/imagen-generator";
 import { apiClient } from "@/lib/api-client";
 import { useSpeech } from "@/hooks/use-speech";
 import {
@@ -305,6 +306,21 @@ export default function MedicationPage() {
                   pharmacist before starting, stopping, or changing any
                   medication.
                 </p>
+              </div>
+
+              {/* AI Infographic Generator */}
+              <div className="mt-6">
+                <ImagenGenerator
+                  medicationData={{
+                    name: analysis.analysis.split('\n')[0] || 'Medication',
+                    dosage: 'As prescribed',
+                    frequency: 'Daily',
+                    instructions: analysis.recommendations.join('; ')
+                  }}
+                  onGenerated={(imageUrl) => {
+                    speak("Health infographic generated successfully. You can download it or generate another one.");
+                  }}
+                />
               </div>
 
               {/* Action Buttons */}
