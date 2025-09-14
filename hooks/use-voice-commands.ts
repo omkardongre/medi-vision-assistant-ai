@@ -127,9 +127,12 @@ export function useVoiceCommands({ enabled, onCommandRecognized, onListening }: 
     }
     if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
       console.log("Speech recognition not supported");
+      console.log("Available APIs:", Object.keys(window).filter(key => key.includes('Speech')));
       speak("Speech recognition is not supported in this browser.");
       return;
     }
+    
+    console.log("Speech recognition is supported");
 
     // Check microphone permissions
     try {
@@ -184,6 +187,7 @@ export function useVoiceCommands({ enabled, onCommandRecognized, onListening }: 
       }
     }
 
+    console.log("Starting speech recognition...");
     recognitionRef.current.start()
   }, [enabled, processCommand, onListening])
 

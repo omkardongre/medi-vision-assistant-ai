@@ -55,13 +55,12 @@ export function AccessibilityToolbar() {
     setVoiceEnabled(newState);
     if (newState) {
       speak(
-        "Voice navigation enabled. Click the microphone button or press Control Space to give voice commands."
+        "Voice navigation enabled. Starting voice recognition in 2 seconds..."
       );
       // Auto-start listening after a short delay
       setTimeout(() => {
-        if (newState) {
-          startVoiceCommand();
-        }
+        console.log("Auto-starting voice command...");
+        startVoiceCommand();
       }, 2000);
     } else {
       speak("Voice navigation disabled.");
@@ -208,7 +207,10 @@ export function AccessibilityToolbar() {
             <Button
               variant="outline"
               size="sm"
-              onClick={startVoiceCommand}
+              onClick={() => {
+                console.log("Manual microphone button clicked");
+                startVoiceCommand();
+              }}
               disabled={!voiceEnabled}
               className={`touch-target ${
                 isListeningForCommand
@@ -218,7 +220,7 @@ export function AccessibilityToolbar() {
                     : "bg-gray-300 text-gray-500"
               }`}
               aria-label="Start voice command"
-              title="Start voice command (Ctrl+Space)"
+              title="Click to start listening for voice commands"
             >
               {isListeningForCommand ? (
                 <MicOff className="w-4 h-4" />
