@@ -14,7 +14,10 @@ import { Badge } from "@/components/ui/badge";
 import { CameraCapture } from "@/components/camera-capture";
 import { apiClient } from "@/lib/api-client";
 import { useSpeech } from "@/hooks/use-speech";
-import { formatAnalysisText, parseAnalysisSections } from "@/lib/text-formatter";
+import {
+  formatAnalysisText,
+  parseAnalysisSections,
+} from "@/lib/text-formatter";
 import {
   ArrowLeft,
   Pill,
@@ -30,7 +33,8 @@ import type { HealthAnalysisResponse } from "@/lib/gemini";
 
 export default function MedicationPage() {
   const router = useRouter();
-  const { speak, hasError, isSpeaking, isPaused, pause, resume, stop } = useSpeech();
+  const { speak, hasError, isSpeaking, isPaused, pause, resume, stop } =
+    useSpeech();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<HealthAnalysisResponse | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -136,13 +140,13 @@ export default function MedicationPage() {
                     onClick={() => {
                       if (isPaused) {
                         resume();
-                      } else {
-                        console.log(
-                          "Listen button clicked, analysis text:",
-                          analysis.analysis
-                        );
-                        speak(analysis.analysis);
-                      }
+                       } else {
+                         console.log(
+                           "Listen button clicked, analysis text:",
+                           analysis.analysis
+                         );
+                         speak(formatAnalysisText(analysis.analysis));
+                       }
                     }}
                     className="touch-target"
                     disabled={isSpeaking && !isPaused}
@@ -207,24 +211,29 @@ export default function MedicationPage() {
               </div>
 
               {/* Analysis Text */}
-              <div className="bg-muted p-4 rounded-lg">
-                <h4 className="font-semibold mb-3 font-work-sans text-lg">
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border border-blue-200">
+                <h4 className="font-bold mb-4 font-work-sans text-xl text-gray-800 flex items-center">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
                   Medication Details
                 </h4>
                 {(() => {
                   const sections = parseAnalysisSections(analysis.analysis);
                   if (sections.length > 0) {
                     return (
-                      <div className="space-y-4">
+                      <div className="space-y-6">
                         {sections.map((section, index) => (
-                          <div key={index} className="border-l-4 border-blue-200 pl-4">
-                            <h5 className="font-semibold text-base mb-2 text-blue-800">
+                          <div key={index} className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-400">
+                            <h5 className="font-semibold text-lg mb-3 text-blue-700 flex items-center">
+                              <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-full mr-2">
+                                {index + 1}
+                              </span>
                               {section.title}
                             </h5>
-                            <div className="text-sm leading-relaxed text-gray-700 space-y-2">
-                              {section.content.split('\n').map((line, lineIndex) => (
-                                <p key={lineIndex} className={line.trim() ? '' : 'h-2'}>
-                                  {line.trim()}
+                            <div className="text-gray-700 leading-relaxed space-y-2">
+                              {section.content.split('\n').filter(line => line.trim()).map((line, lineIndex) => (
+                                <p key={lineIndex} className="flex items-start">
+                                  <span className="text-blue-500 mr-2 mt-1">•</span>
+                                  <span>{line.trim()}</span>
                                 </p>
                               ))}
                             </div>
@@ -234,9 +243,11 @@ export default function MedicationPage() {
                     );
                   } else {
                     return (
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                        {formatAnalysisText(analysis.analysis)}
-                      </p>
+                      <div className="bg-white p-4 rounded-lg">
+                        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                          {formatAnalysisText(analysis.analysis)}
+                        </p>
+                      </div>
                     );
                   }
                 })()}
@@ -244,21 +255,26 @@ export default function MedicationPage() {
 
               {/* Recommendations */}
               {analysis.recommendations.length > 0 && (
-                <div>
-                  <h4 className="font-semibold mb-2 font-work-sans">
+                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl border border-yellow-200">
+                  <h4 className="font-bold mb-4 font-work-sans text-xl text-gray-800 flex items-center">
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full mr-3"></div>
                     Important Information
                   </h4>
-                  <ul className="space-y-1">
-                    {analysis.recommendations.map((rec, index) => (
-                      <li
-                        key={index}
-                        className="text-sm text-muted-foreground flex items-start gap-2"
-                      >
-                        <span className="text-primary">•</span>
-                        <span>{rec}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="bg-white p-4 rounded-lg shadow-sm">
+                    <ul className="space-y-3">
+                      {analysis.recommendations.map((rec, index) => (
+                        <li
+                          key={index}
+                          className="text-gray-700 flex items-start gap-3"
+                        >
+                          <span className="bg-yellow-100 text-yellow-800 text-xs font-bold px-2 py-1 rounded-full mt-0.5 flex-shrink-0">
+                            {index + 1}
+                          </span>
+                          <span className="leading-relaxed">{formatAnalysisText(rec)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               )}
 

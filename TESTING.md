@@ -227,11 +227,7 @@ curl -X POST http://localhost:3000/api/analyze-image \
 
 ```bash
 curl -X POST http://localhost:3000/api/chat \
-  -H "Content-Type: application/json" \
-  -d '{"message":"What should I do about recurring headaches?","conversationHistory":[]}'
-```
-
-**✅ Expected Response:**
+  -**
 
 ```json
 {

@@ -6,11 +6,15 @@ export function cleanMarkdownText(text: string): string {
   // Remove markdown bold formatting (**text** -> text)
   let cleaned = text.replace(/\*\*(.*?)\*\*/g, '$1');
   
-  // Remove markdown italic formatting (*text* -> text)
-  cleaned = cleaned.replace(/\*(.*?)\*/g, '$1');
+  // Remove markdown italic formatting (*text* -> text) but be careful not to remove bullet points
+  cleaned = cleaned.replace(/(?<!\*)\*([^*\n]+?)\*(?!\*)/g, '$1');
   
   // Remove markdown headers (# ## ### -> )
   cleaned = cleaned.replace(/^#{1,6}\s+/gm, '');
+  
+  // Remove any remaining standalone asterisks
+  cleaned = cleaned.replace(/\s+\*\s+/g, ' ');
+  cleaned = cleaned.replace(/^\*\s+/gm, '');
   
   // Clean up extra whitespace
   cleaned = cleaned.replace(/\n\s*\n\s*\n/g, '\n\n');
