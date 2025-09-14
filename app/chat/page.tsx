@@ -12,7 +12,17 @@ import { useSpeech } from "@/hooks/use-speech";
 import { EmergencyAlertDisplay } from "@/components/emergency-alert-display";
 import { formatAnalysisText } from "@/lib/text-formatter";
 import { getConversations } from "@/lib/health-records";
-import { ArrowLeft, Send, Volume2, VolumeX, Bot, User, Plus, MessageSquare, Clock } from "lucide-react";
+import {
+  ArrowLeft,
+  Send,
+  Volume2,
+  VolumeX,
+  Bot,
+  User,
+  Plus,
+  MessageSquare,
+  Clock,
+} from "lucide-react";
 
 interface Message {
   id: string;
@@ -45,7 +55,9 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [emergencyAlert, setEmergencyAlert] = useState<any>(null);
-  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [currentConversationId, setCurrentConversationId] = useState<
+    string | null
+  >(null);
   const [isLoadingConversations, setIsLoadingConversations] = useState(true);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -66,20 +78,24 @@ export default function ChatPage() {
         setIsLoadingConversations(true);
         const conversationsData = await getConversations();
         setConversations(conversationsData);
-        
+
         if (conversationsData && conversationsData.length > 0) {
           // Load the most recent conversation
           const latestConversation = conversationsData[0];
           setCurrentConversationId(latestConversation.id);
-          
+
           // Convert conversation messages to Message format
-          const conversationMessages: Message[] = latestConversation.messages.map((msg: any, index: number) => ({
-            id: `${latestConversation.id}-${index}`,
-            role: msg.role,
-            content: msg.role === 'assistant' ? formatAnalysisText(msg.content) : msg.content,
-            timestamp: new Date(msg.timestamp),
-          }));
-          
+          const conversationMessages: Message[] =
+            latestConversation.messages.map((msg: any, index: number) => ({
+              id: `${latestConversation.id}-${index}`,
+              role: msg.role,
+              content:
+                msg.role === "assistant"
+                  ? formatAnalysisText(msg.content)
+                  : msg.content,
+              timestamp: new Date(msg.timestamp),
+            }));
+
           setMessages(conversationMessages);
         }
       } catch (error) {
@@ -111,15 +127,20 @@ export default function ChatPage() {
   // Function to switch to a different conversation
   const switchToConversation = (conversation: Conversation) => {
     setCurrentConversationId(conversation.id);
-    
+
     // Convert conversation messages to Message format
-    const conversationMessages: Message[] = conversation.messages.map((msg: any, index: number) => ({
-      id: `${conversation.id}-${index}`,
-      role: msg.role,
-      content: msg.role === 'assistant' ? formatAnalysisText(msg.content) : msg.content,
-      timestamp: new Date(msg.timestamp),
-    }));
-    
+    const conversationMessages: Message[] = conversation.messages.map(
+      (msg: any, index: number) => ({
+        id: `${conversation.id}-${index}`,
+        role: msg.role,
+        content:
+          msg.role === "assistant"
+            ? formatAnalysisText(msg.content)
+            : msg.content,
+        timestamp: new Date(msg.timestamp),
+      })
+    );
+
     setMessages(conversationMessages);
     setSidebarOpen(false);
   };
@@ -139,7 +160,11 @@ export default function ChatPage() {
     setIsLoading(true);
 
     try {
-      const response = await apiClient.sendChatMessage(inputMessage, messages, currentConversationId);
+      const response = await apiClient.sendChatMessage(
+        inputMessage,
+        messages,
+        currentConversationId
+      );
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -184,13 +209,6 @@ export default function ChatPage() {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
   const toggleVoice = () => {
     if (voiceEnabled) {
       stop();
@@ -209,7 +227,11 @@ export default function ChatPage() {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 overflow-hidden bg-card border-r border-border flex flex-col`}>
+      <div
+        className={`${
+          sidebarOpen ? "w-80" : "w-0"
+        } transition-all duration-300 overflow-hidden bg-card border-r border-border flex flex-col`}
+      >
         <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Conversations</h2>
@@ -231,7 +253,7 @@ export default function ChatPage() {
             New Chat
           </Button>
         </div>
-        
+
         <div className="flex-1 overflow-y-auto p-2">
           {isLoadingConversations ? (
             <div className="text-center text-muted-foreground py-4">
@@ -248,8 +270,8 @@ export default function ChatPage() {
                   key={conversation.id}
                   className={`cursor-pointer transition-colors ${
                     currentConversationId === conversation.id
-                      ? 'bg-primary text-primary-foreground'
-                      : 'hover:bg-muted'
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-muted"
                   }`}
                   onClick={() => switchToConversation(conversation)}
                 >
@@ -262,7 +284,9 @@ export default function ChatPage() {
                         </p>
                         <div className="flex items-center gap-1 text-xs opacity-70 mt-1">
                           <Clock className="w-3 h-3" />
-                          {new Date(conversation.updated_at).toLocaleDateString()}
+                          {new Date(
+                            conversation.updated_at
+                          ).toLocaleDateString()}
                         </div>
                       </div>
                     </div>
@@ -277,75 +301,76 @@ export default function ChatPage() {
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-      <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="touch-target"
-                aria-label="Toggle sidebar"
-              >
-                <MessageSquare className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => router.back()}
-                className="touch-target"
-                aria-label="Go back"
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
-              <div>
-                <h1 className="text-xl font-bold text-foreground font-work-sans">
-                  Health Chat
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  AI-powered health assistant
-                </p>
+        <header className="border-b border-border bg-card">
+          <div className="px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className="touch-target"
+                  aria-label="Toggle sidebar"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.back()}
+                  className="touch-target"
+                  aria-label="Go back"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </Button>
+                <div>
+                  <h1 className="text-xl font-bold text-foreground font-work-sans">
+                    Health Chat
+                  </h1>
+                  <p className="text-sm text-muted-foreground">
+                    AI-powered health assistant
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={startNewChat}
+                  variant="outline"
+                  size="sm"
+                  className="touch-target"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Chat
+                </Button>
+                <Button
+                  variant={voiceEnabled ? "default" : "outline"}
+                  size="sm"
+                  onClick={toggleVoice}
+                  className="touch-target"
+                  aria-label={
+                    voiceEnabled
+                      ? "Disable voice responses"
+                      : "Enable voice responses"
+                  }
+                >
+                  {voiceEnabled ? (
+                    <Volume2 className="w-4 h-4" />
+                  ) : (
+                    <VolumeX className="w-4 h-4" />
+                  )}
+                </Button>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={startNewChat}
-                variant="outline"
-                size="sm"
-                className="touch-target"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                New Chat
-              </Button>
-              <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleVoice}
-              className={`touch-target ${
-                voiceEnabled ? "bg-primary text-primary-foreground" : ""
-              }`}
-              aria-label={
-                voiceEnabled
-                  ? "Disable voice responses"
-                  : "Enable voice responses"
-              }
-            >
-              {voiceEnabled ? (
-                <Volume2 className="w-4 h-4" />
-              ) : (
-                <VolumeX className="w-4 h-4" />
-              )}
-            </Button>
           </div>
-        </div>
-      </header>
+        </header>
 
         {/* Chat Messages */}
         <div className="flex-1 container mx-auto px-4 py-6 max-w-4xl">
           {isLoadingConversations ? (
             <div className="flex items-center justify-center h-32">
-              <div className="text-muted-foreground">Loading chat history...</div>
+              <div className="text-muted-foreground">
+                Loading chat history...
+              </div>
             </div>
           ) : (
             <div className="space-y-4 mb-6">
@@ -435,50 +460,58 @@ export default function ChatPage() {
           )}
         </div>
 
-      {/* Input Area */}
-      <div className="border-t border-border bg-card">
-        <div className="container mx-auto px-4 py-4 max-w-4xl">
-          <div className="flex gap-2">
-            <Input
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask me about your health concerns..."
-              className="flex-1 touch-target"
-              disabled={isLoading}
-            />
-            <Button
-              onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isLoading}
-              className="touch-target"
-              aria-label="Send message"
-            >
-              <Send className="w-4 h-4" />
-            </Button>
-          </div>
-
-          {/* Quick Suggestions */}
-          <div className="flex flex-wrap gap-2 mt-3">
-            {[
-              "What are common cold symptoms?",
-              "How can I improve my sleep?",
-              "When should I see a doctor?",
-              "Tell me about healthy eating",
-            ].map((suggestion) => (
-              <Button
-                key={suggestion}
-                variant="outline"
-                size="sm"
-                onClick={() => setInputMessage(suggestion)}
-                className="text-xs touch-target"
+        {/* Input Area */}
+        <div className="border-t border-border bg-card">
+          <div className="container mx-auto px-4 py-4 max-w-4xl">
+            <div className="flex gap-2">
+              <Input
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                placeholder="Ask me about your health concerns..."
+                className="flex-1 touch-target"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
                 disabled={isLoading}
+              />
+              <Button
+                onClick={handleSendMessage}
+                disabled={!inputMessage.trim() || isLoading}
+                className="touch-target"
+                aria-label="Send message"
               >
-                {suggestion}
+                <Send className="w-4 h-4" />
               </Button>
-            ))}
+            </div>
+
+            {/* Quick Suggestions */}
+            <div className="flex flex-wrap gap-2 mt-3">
+              {[
+                "What are common cold symptoms?",
+                "How can I improve my sleep?",
+                "When should I see a doctor?",
+                "Tell me about healthy eating",
+              ].map((suggestion) => (
+                <Button
+                  key={suggestion}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setInputMessage(suggestion);
+                    handleSendMessage();
+                  }}
+                  className="touch-target text-xs"
+                  disabled={isLoading}
+                >
+                  {suggestion}
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
       </div>
 
       {/* Emergency Alert Display */}
