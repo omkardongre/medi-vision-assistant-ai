@@ -55,8 +55,16 @@ export function AccessibilityToolbar() {
     setVoiceEnabled(newState);
     if (newState) {
       speak(
-        "Voice navigation enabled. Press Control Space to give voice commands."
+        "Voice navigation enabled. Click the microphone button or press Control Space to give voice commands."
       );
+      // Auto-start listening after a short delay
+      setTimeout(() => {
+        if (newState) {
+          startVoiceCommand();
+        }
+      }, 2000);
+    } else {
+      speak("Voice navigation disabled.");
     }
   };
 
@@ -205,7 +213,9 @@ export function AccessibilityToolbar() {
               className={`touch-target ${
                 isListeningForCommand
                   ? "bg-red-500 text-white animate-pulse"
-                  : ""
+                  : voiceEnabled 
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "bg-gray-300 text-gray-500"
               }`}
               aria-label="Start voice command"
               title="Start voice command (Ctrl+Space)"

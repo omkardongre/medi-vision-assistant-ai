@@ -454,7 +454,7 @@ When you find issues, document them using this format:
 
 **📝 Test Notes:** _[Add any notes about issues, observations, or special conditions here]_
 
-### **Test 15.3: Font Scaling (100%-300%)** - Status: [ ] PASS [ ] FAIL [ ] SKIP
+### **Test 15.3: Font Scaling (100%-300%)** - Status: [X] PASS [ ] FAIL [ ] SKIP
 
 1. Use accessibility toolbar
 2. Click "A+" button multiple times

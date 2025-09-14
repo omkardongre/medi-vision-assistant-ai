@@ -119,7 +119,7 @@ export function useVoiceCommands({ enabled, onCommandRecognized, onListening }: 
     [onCommandRecognized, speak],
   )
 
-  const startListening = useCallback(() => {
+  const startListening = useCallback(async () => {
     console.log("Voice commands - startListening called, enabled:", enabled);
     if (!enabled) {
       console.log("Voice commands disabled");
@@ -127,6 +127,18 @@ export function useVoiceCommands({ enabled, onCommandRecognized, onListening }: 
     }
     if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
       console.log("Speech recognition not supported");
+      speak("Speech recognition is not supported in this browser.");
+      return;
+    }
+
+    // Check microphone permissions
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(track => track.stop()); // Stop the stream immediately
+      console.log("Microphone permission granted");
+    } catch (error) {
+      console.error("Microphone permission denied:", error);
+      speak("Microphone permission is required for voice commands. Please allow microphone access and try again.");
       return;
     }
 
@@ -156,8 +168,20 @@ export function useVoiceCommands({ enabled, onCommandRecognized, onListening }: 
 
     recognitionRef.current.onerror = (event: any) => {
       console.error("Speech recognition error:", event.error)
+      console.error("Error details:", event)
       isListeningRef.current = false
       onListening?.(false)
+      
+      // Provide user feedback for common errors
+      if (event.error === 'not-allowed') {
+        speak("Microphone permission denied. Please allow microphone access and try again.")
+      } else if (event.error === 'no-speech') {
+        speak("No speech detected. Please try again.")
+      } else if (event.error === 'network') {
+        speak("Network error. Please check your internet connection.")
+      } else {
+        speak(`Speech recognition error: ${event.error}`)
+      }
     }
 
     recognitionRef.current.start()
