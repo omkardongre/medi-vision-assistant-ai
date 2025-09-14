@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Initialize Google AI with Imagen 4
+// Initialize Google AI for Imagen
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || "");
 
 export async function POST(request: NextRequest) {
@@ -71,53 +71,61 @@ export async function POST(request: NextRequest) {
         enhancedPrompt = prompt;
     }
 
-    // Try different Imagen models in order of preference
+    // Try Imagen models using the correct API approach
     const imagenModels = [
-      "imagen-3.0-generate-001",
-      "imagen-2.0-generate-001", 
-      "imagen-1.0-generate-001"
+      "imagen-4.0-generate-001",
+      "imagen-3.0-generate-002", 
+      "imagen-3.0-generate-001"
     ];
 
     for (const modelName of imagenModels) {
       try {
         console.log(`Trying Imagen model: ${modelName}`);
-        const model = genAI.getGenerativeModel({
-          model: modelName,
-        });
-
-        const result = await model.generateContent({
-          contents: [
-            {
-              role: "user",
-              parts: [
-                {
-                  text: enhancedPrompt,
-                },
-              ],
+        
+        // Use the correct Imagen API endpoint
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:predict`,
+          {
+            method: 'POST',
+            headers: {
+              'x-goog-api-key': process.env.GOOGLE_AI_API_KEY || '',
+              'Content-Type': 'application/json',
             },
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1024,
-          },
-        });
+            body: JSON.stringify({
+              instances: [
+                {
+                  prompt: enhancedPrompt
+                }
+              ],
+              parameters: {
+                sampleCount: 1,
+                aspectRatio: "1:1",
+                personGeneration: "allow_adult"
+              }
+            })
+          }
+        );
 
-        const response = await result.response;
-        const generatedImage =
-          response.candidates?.[0]?.content?.parts?.[0]?.inlineData;
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-        if (generatedImage) {
+        const result = await response.json();
+        console.log('Imagen API response:', result);
+
+        // Extract image data from response
+        if (result.predictions && result.predictions[0] && result.predictions[0].bytesBase64Encoded) {
+          const imageData = result.predictions[0].bytesBase64Encoded;
           console.log(`Successfully generated image with ${modelName}`);
+          
           return NextResponse.json({
             success: true,
-            imageData: generatedImage.data,
-            mimeType: generatedImage.mimeType,
+            imageData: imageData,
+            mimeType: 'image/png',
             prompt: enhancedPrompt,
             type: type,
             fallback: false, // Real Imagen generation
-            modelUsed: modelName
+            modelUsed: modelName,
           });
         }
       } catch (imagenError) {
