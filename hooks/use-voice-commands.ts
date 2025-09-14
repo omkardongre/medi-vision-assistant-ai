@@ -120,8 +120,14 @@ export function useVoiceCommands({ enabled, onCommandRecognized, onListening }: 
   )
 
   const startListening = useCallback(() => {
-    if (!enabled || !("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
-      return
+    console.log("Voice commands - startListening called, enabled:", enabled);
+    if (!enabled) {
+      console.log("Voice commands disabled");
+      return;
+    }
+    if (!("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
+      console.log("Speech recognition not supported");
+      return;
     }
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
@@ -132,6 +138,7 @@ export function useVoiceCommands({ enabled, onCommandRecognized, onListening }: 
     recognitionRef.current.lang = "en-US"
 
     recognitionRef.current.onstart = () => {
+      console.log("Voice recognition started");
       isListeningRef.current = true
       onListening?.(true)
     }
@@ -143,6 +150,7 @@ export function useVoiceCommands({ enabled, onCommandRecognized, onListening }: 
 
     recognitionRef.current.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript
+      console.log("Voice command received:", transcript);
       processCommand(transcript)
     }
 

@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import { AccessibilityProvider } from "@/components/accessibility-provider";
 import { AuthProvider } from "@/components/auth-provider";
+import { AccessibilityToolbar } from "@/components/accessibility-toolbar";
 import "./globals.css";
 
 const inter = Inter({
@@ -81,6 +82,7 @@ export default function RootLayout({
               </div>
               <main id="main-content">{children}</main>
             </Suspense>
+            <AccessibilityToolbar />
             <Analytics />
           </AccessibilityProvider>
         </AuthProvider>
