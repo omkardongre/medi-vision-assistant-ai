@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Initialize Google AI with Imagen
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || "");
+// Note: Imagen API integration requires proper setup with Google Cloud
+// For now, we'll create a fallback that generates placeholder infographics
+// This demonstrates the concept while we work on proper Imagen integration
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,105 +17,132 @@ export async function POST(request: NextRequest) {
 
     // Create enhanced prompt based on type
     let enhancedPrompt = "";
-    
+    let title = "";
+    let content = [];
+
     switch (type) {
       case "medication_schedule":
-        enhancedPrompt = `Create a professional medical infographic showing a medication schedule. 
-        Medication: ${medicationData?.name || "Medication"}
-        Dosage: ${medicationData?.dosage || "As prescribed"}
-        Frequency: ${medicationData?.frequency || "Daily"}
-        
-        Design a clean, accessible infographic with:
-        - Clear medication name and dosage
-        - Time schedule with clock icons
-        - Important safety reminders
-        - Professional medical styling
-        - High contrast colors for accessibility
-        - Simple, readable fonts
-        
-        Style: Medical infographic, clean design, professional colors, accessible typography`;
+        title = "Medication Schedule";
+        content = [
+          `Medication: ${medicationData?.name || "Medication"}`,
+          `Dosage: ${medicationData?.dosage || "As prescribed"}`,
+          `Frequency: ${medicationData?.frequency || "Daily"}`,
+          "Take with food as directed",
+          "Store in cool, dry place",
+        ];
+        enhancedPrompt = `Medication schedule for ${
+          medicationData?.name || "medication"
+        }`;
         break;
-        
+
       case "health_progress":
-        enhancedPrompt = `Create a health progress tracking infographic showing:
-        - Progress timeline with milestones
-        - Health metrics visualization
-        - Achievement badges
-        - Motivational elements
-        - Clean, modern design
-        - Accessible color scheme
-        
-        Style: Modern health dashboard, clean lines, professional medical styling`;
+        title = "Health Progress Tracking";
+        content = [
+          "Track your health journey",
+          "Monitor improvements over time",
+          "Set achievable goals",
+          "Celebrate milestones",
+          "Stay motivated and consistent",
+        ];
+        enhancedPrompt = "Health progress tracking infographic";
         break;
-        
+
       case "symptom_tracker":
-        enhancedPrompt = `Create a symptom tracking infographic with:
-        - Symptom categories and severity scales
-        - Tracking timeline
-        - Color-coded severity indicators
-        - Professional medical styling
-        - Clear, accessible design
-        
-        Style: Medical chart, clean design, professional colors, accessible typography`;
+        title = "Symptom Tracker";
+        content = [
+          "Monitor symptoms and patterns",
+          "Track severity and frequency",
+          "Note triggers and relief methods",
+          "Share with healthcare provider",
+          "Maintain detailed records",
+        ];
+        enhancedPrompt = "Symptom tracking infographic";
         break;
-        
+
       default:
-        enhancedPrompt = `Create a professional health infographic about: ${prompt}
-        
-        Design requirements:
-        - Clean, medical professional styling
-        - High contrast colors for accessibility
-        - Simple, readable fonts
-        - Clear visual hierarchy
-        - Informative and educational content
-        
-        Style: Medical infographic, professional, accessible, clean design`;
+        title = "Health Information";
+        content = [
+          "AI-generated health content",
+          "Professional medical styling",
+          "Accessible design",
+          "Evidence-based information",
+          "Consult healthcare professionals",
+        ];
+        enhancedPrompt = prompt;
     }
 
-    // Use Imagen to generate the infographic
-    const model = genAI.getGenerativeModel({ 
-      model: "imagen-3.0-generate-001" // Using the latest Imagen model
-    });
+    // Create a simple infographic using SVG (works in browser)
+    const svgContent = `
+      <svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#f8fafc;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#e2e8f0;stop-opacity:1" />
+          </linearGradient>
+        </defs>
+        
+        <!-- Background -->
+        <rect width="800" height="600" fill="url(#bg)" />
+        
+        <!-- Header -->
+        <rect x="0" y="0" width="800" height="80" fill="#1e40af" />
+        <text x="400" y="50" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="28" font-weight="bold">
+          ${title}
+        </text>
+        
+        <!-- Content -->
+        <g transform="translate(50, 120)">
+          ${content
+            .map(
+              (item, index) => `
+            <g transform="translate(0, ${index * 60})">
+              <circle cx="20" cy="20" r="8" fill="#3b82f6" />
+              <text x="50" y="25" fill="#374151" font-family="Arial, sans-serif" font-size="16">
+                ${item}
+              </text>
+            </g>
+          `
+            )
+            .join("")}
+        </g>
+        
+        <!-- Footer -->
+        <rect x="0" y="520" width="800" height="80" fill="#f1f5f9" />
+        <text x="400" y="550" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="14">
+          Generated by MediVision Assistant
+        </text>
+        <text x="400" y="575" text-anchor="middle" fill="#6b7280" font-family="Arial, sans-serif" font-size="12">
+          AI-Powered Health Companion
+        </text>
+        
+        <!-- Decorative elements -->
+        <circle cx="100" cy="100" r="30" fill="#dbeafe" opacity="0.5" />
+        <circle cx="700" cy="150" r="25" fill="#dbeafe" opacity="0.5" />
+        <circle cx="150" cy="450" r="20" fill="#dbeafe" opacity="0.5" />
+      </svg>
+    `;
 
-    const result = await model.generateContent({
-      contents: [{
-        role: "user",
-        parts: [{
-          text: enhancedPrompt
-        }]
-      }],
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 1024,
-      }
-    });
-
-    const response = await result.response;
-    const generatedImage = response.candidates?.[0]?.content?.parts?.[0]?.inlineData;
-
-    if (!generatedImage) {
-      throw new Error("Failed to generate image");
-    }
+    // Convert SVG to base64
+    const base64 = Buffer.from(svgContent).toString("base64");
 
     return NextResponse.json({
       success: true,
-      imageData: generatedImage.data,
-      mimeType: generatedImage.mimeType,
+      imageData: base64,
+      mimeType: "image/svg+xml",
       prompt: enhancedPrompt,
-      type: type
+      type: type,
+      fallback: true, // Indicate this is a fallback implementation
+      message:
+        "Fallback infographic generated. Imagen integration in progress.",
     });
-
   } catch (error) {
-    console.error("Imagen generation error:", error);
-    
-    // Fallback: Return a placeholder or error message
+    console.error("Infographic generation error:", error);
+
     return NextResponse.json(
-      { 
+      {
         error: "Failed to generate infographic",
         details: error instanceof Error ? error.message : "Unknown error",
-        fallback: true
+        fallback: true,
       },
       { status: 500 }
     );
@@ -127,9 +154,9 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
   });
 }

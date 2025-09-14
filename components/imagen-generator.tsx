@@ -37,6 +37,7 @@ export function ImagenGenerator({ medicationData, onGenerated }: ImagenGenerator
   const [imageData, setImageData] = useState<{data: string; mimeType: string} | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [generationType, setGenerationType] = useState<string>("");
+  const [isFallback, setIsFallback] = useState<boolean>(false);
 
   const handleGenerate = async (type: ImagenRequest['type'], customPrompt?: string) => {
     setIsGenerating(true);
@@ -87,9 +88,19 @@ export function ImagenGenerator({ medicationData, onGenerated }: ImagenGenerator
       const result = await generateHealthInfographic(request);
 
       if (result.success && result.imageData && result.mimeType) {
-        const imageUrl = createImageBlobUrl(result.imageData, result.mimeType);
+        // Handle both SVG and PNG data
+        let imageUrl;
+        if (result.mimeType === 'image/svg+xml') {
+          // For SVG, create a data URL directly
+          imageUrl = `data:image/svg+xml;base64,${result.imageData}`;
+        } else {
+          // For other formats, use the blob URL method
+          imageUrl = createImageBlobUrl(result.imageData, result.mimeType);
+        }
+        
         setGeneratedImage(imageUrl);
         setImageData({ data: result.imageData, mimeType: result.mimeType });
+        setIsFallback(result.fallback || false);
         
         if (onGenerated) {
           onGenerated(imageUrl);
@@ -237,7 +248,7 @@ export function ImagenGenerator({ medicationData, onGenerated }: ImagenGenerator
             </div>
 
             <p className="text-sm text-muted-foreground text-center">
-              AI-generated health infographic using Google Imagen
+              AI-generated health infographic {isFallback ? '(Fallback Implementation)' : 'using Google Imagen'}
             </p>
           </div>
         )}
