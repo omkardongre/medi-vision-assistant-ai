@@ -107,7 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         options: {
           emailRedirectTo:
             typeof window !== "undefined"
-              ? `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/auth/callback`
+              ? `${window.location.origin}/auth/callback`
               : undefined,
         },
       });
