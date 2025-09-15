@@ -64,19 +64,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Listen for auth changes
     const {
       data: { subscription },
-      } = supabase.auth.onAuthStateChange(async (event, session) => {
-        setUser(session?.user ?? null);
-        setLoading(false);
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
 
-        // Close modal on successful auth
-        if (session?.user) {
-          setShowModal(false);
-          setAuthSuccess("Successfully signed in!");
-          setTimeout(() => setAuthSuccess(""), 3000);
-        } else if (event === "SIGNED_OUT") {
-          setShowModal(false);
-          setAuthSuccess("");
-        }
+      // Close modal on successful auth
+      if (session?.user) {
+        setShowModal(false);
+        setAuthSuccess("Successfully signed in!");
+        setTimeout(() => setAuthSuccess(""), 3000);
+      } else if (event === "SIGNED_OUT") {
+        setShowModal(false);
+        setAuthSuccess("");
+      }
 
       // Create user profile if this is a new signup
       if (event === "SIGNED_UP" && session?.user) {
@@ -107,7 +107,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         options: {
           emailRedirectTo:
             typeof window !== "undefined"
-              ? `${window.location.origin}/auth/callback`
+              ? `${
+                  process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
+                }/auth/callback`
               : undefined,
         },
       });
@@ -136,7 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Immediate user feedback - clear state right away
       setUser(null);
       setLoading(false);
-      
+
       // Clear local storage immediately for instant UI update
       if (typeof window !== "undefined") {
         const keys = Object.keys(localStorage);
@@ -161,7 +163,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await Promise.race([signOutPromise, timeoutPromise]);
       } catch (supabaseError) {
         // Supabase sign out failed, but local state is already cleared
-        console.warn("Supabase sign out timeout, continuing with local cleanup");
+        console.warn(
+          "Supabase sign out timeout, continuing with local cleanup"
+        );
       }
     } catch (error) {
       console.error("Sign out failed:", error);
