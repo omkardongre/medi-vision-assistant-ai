@@ -38,6 +38,8 @@
 - **Google Gemini 2.5 Flash** integration for health analysis
 - **Live API streaming** for real-time responses
 - **Image analysis** for skin conditions and medication scanning
+- **Video analysis** for comprehensive health monitoring (up to 25MB)
+- **Imagen 4.0** for AI-generated health infographics
 - **Voice processing** for accessibility and ease of use
 - **Context-aware conversations** with medical expertise
 
@@ -66,7 +68,9 @@
 | Feature                | Description                                        | AI Model          |
 | ---------------------- | -------------------------------------------------- | ----------------- |
 | **Skin Analysis**      | Analyze photos of skin conditions, rashes, wounds  | Gemini 2.5 Flash |
+| **Video Analysis**     | Analyze health videos for movement, posture, gait  | Gemini 2.5 Flash |
 | **Medication Scanner** | Identify pills, check interactions, verify dosages | Gemini 2.5 Flash |
+| **Health Infographics**| AI-generated medical visual content and schedules  | Imagen 4.0 |
 | **Voice Logger**       | Process voice descriptions of symptoms             | Gemini 2.5 Flash |
 | **Health Chat**        | Intelligent health conversations with context      | Gemini 2.5 Flash |
 
@@ -108,6 +112,7 @@
 ### **AI & APIs**
 
 - **Google Gemini 2.5 Flash** - Advanced LLM for health analysis
+- **Google Imagen 4.0** - AI-generated health infographics
 - **Google Live API** - Real-time streaming responses
 - **Web Speech API** - Voice recognition and synthesis
 - **MediaDevices API** - Camera and microphone access
