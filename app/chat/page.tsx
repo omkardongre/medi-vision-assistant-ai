@@ -70,7 +70,8 @@ export default function ChatPage() {
   };
 
   useEffect(() => {
-    scrollToBottom();
+    // Scroll to bottom when messages change, but with a small delay to ensure DOM is updated
+    setTimeout(scrollToBottom, 100);
   }, [messages]);
 
   // Handle URL parameters for context from analysis pages
@@ -205,28 +206,18 @@ export default function ChatPage() {
         console.log("Loaded conversations:", conversationsData);
         setConversations(conversationsData);
 
-        if (conversationsData && conversationsData.length > 0) {
-          // Load the most recent conversation
-          const latestConversation = conversationsData[0];
-          console.log("Loading latest conversation:", latestConversation.title);
-          setCurrentConversationId(latestConversation.id);
-
-          // Convert conversation messages to Message format
-          const conversationMessages: Message[] =
-            latestConversation.messages.map((msg: any, index: number) => ({
-              id: `${latestConversation.id}-${index}`,
-              role: msg.role,
-              content:
-                msg.role === "assistant"
-                  ? formatAnalysisText(msg.content)
-                  : msg.content,
-              timestamp: new Date(msg.timestamp),
-            }));
-
-          setMessages(conversationMessages);
-        } else {
-          console.log("No conversations found, using default welcome message");
-        }
+        // Always start with a new chat by default - don't load existing conversations
+        console.log("Starting with new chat by default");
+        setCurrentConversationId(null);
+        setMessages([
+          {
+            id: "welcome",
+            role: "assistant",
+            content:
+              "Hello! I'm your AI health assistant. I'm here to help answer your health questions and provide general guidance. How can I assist you today?",
+            timestamp: new Date(),
+          },
+        ]);
       } catch (error) {
         console.error("Error loading conversations:", error);
         // Keep default welcome message if loading fails
@@ -505,7 +496,7 @@ export default function ChatPage() {
         </header>
 
         {/* Chat Messages */}
-        <div className="flex-1 container mx-auto px-4 py-6 max-w-4xl">
+        <div className="flex-1 container mx-auto px-4 py-4 max-w-4xl overflow-y-auto">
           {isLoadingConversations ? (
             <div className="flex items-center justify-center h-32">
               <div className="text-muted-foreground">
@@ -513,7 +504,7 @@ export default function ChatPage() {
               </div>
             </div>
           ) : (
-            <div className="space-y-4 mb-6">
+            <div className="space-y-4 mb-4">
               {messages.map((message) => (
                 <div
                   key={message.id}
