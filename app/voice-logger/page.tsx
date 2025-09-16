@@ -1,72 +1,90 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { VoiceRecorder } from "@/components/voice-recorder"
-import { apiClient } from "@/lib/api-client"
-import { useSpeech } from "@/hooks/use-speech"
-import { ArrowLeft, AlertTriangle, CheckCircle, Clock, Volume2, MessageCircle } from "lucide-react"
-import type { HealthAnalysisResponse } from "@/lib/gemini"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { VoiceRecorder } from "@/components/voice-recorder";
+import { apiClient } from "@/lib/api-client";
+import { useSpeech } from "@/hooks/use-speech";
+import {
+  ArrowLeft,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  Volume2,
+  MessageCircle,
+} from "lucide-react";
+import type { HealthAnalysisResponse } from "@/lib/gemini";
+import { formatAnalysisText } from "@/lib/text-formatter";
 
 export default function VoiceLoggerPage() {
-  const router = useRouter()
-  const { speak } = useSpeech()
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [analysis, setAnalysis] = useState<(HealthAnalysisResponse & { transcript: string }) | null>(null)
+  const router = useRouter();
+  const { speak } = useSpeech();
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysis, setAnalysis] = useState<
+    (HealthAnalysisResponse & { transcript: string }) | null
+  >(null);
 
   const handleRecordingComplete = (audioBlob: Blob, transcript?: string) => {
-    speak("Recording completed successfully. You can now analyze it or record again.")
-  }
+    speak(
+      "Recording completed successfully. You can now analyze it or record again."
+    );
+  };
 
   const handleAnalyze = async (audioBlob: Blob) => {
-    setIsAnalyzing(true)
-    speak("Analyzing your voice recording. This may take a moment.")
+    setIsAnalyzing(true);
+    speak("Analyzing your voice recording. This may take a moment.");
 
     try {
-      const result = await apiClient.analyzeAudio(audioBlob)
-      setAnalysis(result)
+      const result = await apiClient.analyzeAudio(audioBlob);
+      setAnalysis(result);
 
       // Speak the analysis summary
       const urgencyMessage =
         result.urgency === "Seek Care"
           ? "This may require medical attention."
           : result.urgency === "Monitor"
-            ? "Please monitor these symptoms."
-            : "These symptoms appear routine."
+          ? "Please monitor these symptoms."
+          : "These symptoms appear routine.";
 
-      speak(`Analysis complete. ${urgencyMessage}`)
+      speak(`Analysis complete. ${urgencyMessage}`);
     } catch (error) {
-      console.error("Analysis failed:", error)
-      speak("Sorry, the analysis failed. Please try again or contact support.")
+      console.error("Analysis failed:", error);
+      speak("Sorry, the analysis failed. Please try again or contact support.");
     } finally {
-      setIsAnalyzing(false)
+      setIsAnalyzing(false);
     }
-  }
+  };
 
   const getUrgencyColor = (urgency: string) => {
     switch (urgency) {
       case "Seek Care":
-        return "bg-red-100 text-red-800 border-red-200"
+        return "bg-red-100 text-red-800 border-red-200";
       case "Monitor":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
       default:
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-green-100 text-green-800 border-green-200";
     }
-  }
+  };
 
   const getUrgencyIcon = (urgency: string) => {
     switch (urgency) {
       case "Seek Care":
-        return <AlertTriangle className="w-4 h-4" />
+        return <AlertTriangle className="w-4 h-4" />;
       case "Monitor":
-        return <Clock className="w-4 h-4" />
+        return <Clock className="w-4 h-4" />;
       default:
-        return <CheckCircle className="w-4 h-4" />
+        return <CheckCircle className="w-4 h-4" />;
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -84,8 +102,12 @@ export default function VoiceLoggerPage() {
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <div>
-              <h1 className="text-xl font-bold text-foreground font-work-sans">Voice Logger</h1>
-              <p className="text-sm text-muted-foreground">Record and analyze your health symptoms</p>
+              <h1 className="text-xl font-bold text-foreground font-work-sans">
+                Voice Logger
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Record and analyze your health symptoms
+              </p>
             </div>
           </div>
         </div>
@@ -102,7 +124,10 @@ export default function VoiceLoggerPage() {
               <p>• Speak clearly and describe your symptoms in detail</p>
               <p>• Include when symptoms started, severity, and any triggers</p>
               <p>• Mention any medications you're currently taking</p>
-              <p>• This tool provides general guidance only - consult a healthcare professional for medical advice</p>
+              <p>
+                • This tool provides general guidance only - consult a
+                healthcare professional for medical advice
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -119,13 +144,22 @@ export default function VoiceLoggerPage() {
           <Card className="border-2">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="font-work-sans">Analysis Results</CardTitle>
-                <Button variant="outline" size="sm" onClick={() => speak(analysis.analysis)} className="touch-target">
+                <CardTitle className="font-work-sans">
+                  Analysis Results
+                </CardTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => speak(formatAnalysisText(analysis.analysis))}
+                  className="touch-target"
+                >
                   <Volume2 className="w-4 h-4 mr-2" />
                   Listen
                 </Button>
               </div>
-              <CardDescription>AI-powered assessment of your voice recording</CardDescription>
+              <CardDescription>
+                AI-powered assessment of your voice recording
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Status Badges */}
@@ -134,45 +168,66 @@ export default function VoiceLoggerPage() {
                   {getUrgencyIcon(analysis.urgency)}
                   <span className="ml-1">{analysis.urgency}</span>
                 </Badge>
-                <Badge variant="outline">Confidence: {analysis.confidence}</Badge>
+                <Badge variant="outline">
+                  Confidence: {analysis.confidence}
+                </Badge>
               </div>
 
               {/* Transcript */}
               {analysis.transcript && (
                 <div className="bg-muted p-4 rounded-lg">
-                  <h4 className="font-semibold mb-2 font-work-sans">Transcript</h4>
-                  <p className="text-sm leading-relaxed">{analysis.transcript}</p>
+                  <h4 className="font-semibold mb-2 font-work-sans">
+                    Transcript
+                  </h4>
+                  <p className="text-sm leading-relaxed">
+                    {analysis.transcript}
+                  </p>
                 </div>
               )}
 
               {/* Analysis Text */}
               <div className="bg-muted p-4 rounded-lg">
-                <h4 className="font-semibold mb-2 font-work-sans">Assessment</h4>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">{analysis.analysis}</p>
+                <h4 className="font-semibold mb-2 font-work-sans">
+                  Assessment
+                </h4>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                  {formatAnalysisText(analysis.analysis)}
+                </p>
               </div>
 
               {/* Follow-up Questions */}
-              {analysis.followUpQuestions && analysis.followUpQuestions.length > 0 && (
-                <div>
-                  <h4 className="font-semibold mb-2 font-work-sans">Follow-up Questions</h4>
-                  <ul className="space-y-1">
-                    {analysis.followUpQuestions.map((question, index) => (
-                      <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
-                        <span className="text-primary">•</span>
-                        <span>{question}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              {analysis.followUpQuestions &&
+                analysis.followUpQuestions.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-2 font-work-sans">
+                      Follow-up Questions
+                    </h4>
+                    <ul className="space-y-1">
+                      {analysis.followUpQuestions.map((question, index) => (
+                        <li
+                          key={index}
+                          className="text-sm text-muted-foreground flex items-start gap-2"
+                        >
+                          <span className="text-primary">•</span>
+                          <span>{question}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
               {/* Recommendations */}
               {analysis.recommendations.length > 0 && (
                 <div>
-                  <h4 className="font-semibold mb-2 font-work-sans">Recommendations</h4>
+                  <h4 className="font-semibold mb-2 font-work-sans">
+                    Recommendations
+                  </h4>
                   <ul className="space-y-1">
                     {analysis.recommendations.map((rec, index) => (
-                      <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
+                      <li
+                        key={index}
+                        className="text-sm text-muted-foreground flex items-start gap-2"
+                      >
                         <span className="text-primary">•</span>
                         <span>{rec}</span>
                       </li>
@@ -184,18 +239,26 @@ export default function VoiceLoggerPage() {
               {/* Important Disclaimer */}
               <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
                 <p className="text-sm text-yellow-800">
-                  <strong>Important:</strong> This analysis is for informational purposes only and should not replace
-                  professional medical advice. Please consult with a healthcare provider for proper diagnosis and
-                  treatment.
+                  <strong>Important:</strong> This analysis is for informational
+                  purposes only and should not replace professional medical
+                  advice. Please consult with a healthcare provider for proper
+                  diagnosis and treatment.
                 </p>
               </div>
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-2">
-                <Button onClick={() => setAnalysis(null)} className="touch-target">
+                <Button
+                  onClick={() => setAnalysis(null)}
+                  className="touch-target"
+                >
                   Record Another Symptom
                 </Button>
-                <Button variant="outline" onClick={() => router.push("/chat")} className="touch-target">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push("/chat")}
+                  className="touch-target"
+                >
                   <MessageCircle className="w-4 h-4 mr-2" />
                   Discuss with AI Assistant
                 </Button>
@@ -205,5 +268,5 @@ export default function VoiceLoggerPage() {
         )}
       </div>
     </div>
-  )
+  );
 }
