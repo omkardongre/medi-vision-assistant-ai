@@ -178,16 +178,8 @@ export default function ChatPage() {
         // Send the analysis message after a short delay to ensure UI is ready
         setTimeout(sendAnalysisMessage, 1000);
 
-        // Load conversations list for sidebar (but don't load any specific conversation)
-        const loadConversationsForSidebar = async () => {
-          try {
-            const conversationsData = await getConversations();
-            setConversations(conversationsData);
-          } catch (error) {
-            console.error("Error loading conversations for sidebar:", error);
-          }
-        };
-        loadConversationsForSidebar();
+        // Don't load conversations for sidebar when coming from analysis pages
+        // This prevents layout shifts and empty scroll areas
 
         // Clear URL parameters after processing
         const newUrl = new URL(window.location.href);
@@ -222,6 +214,12 @@ export default function ChatPage() {
       return;
     }
 
+    // Don't load conversations if we're in a new chat (currentConversationId is null)
+    // This prevents the empty scroll area issue when user sends first message
+    if (currentConversationId === null) {
+      return;
+    }
+
     const loadConversations = async () => {
       try {
         console.log("Loading conversations for sidebar...");
@@ -234,7 +232,7 @@ export default function ChatPage() {
     };
 
     loadConversations();
-  }, [searchParams, isInitialized]);
+  }, [searchParams, isInitialized, currentConversationId]);
 
   // Function to start a new chat
   const startNewChat = () => {
@@ -250,6 +248,17 @@ export default function ChatPage() {
     ]);
     setSidebarOpen(false);
     contextProcessedRef.current = false; // Reset context processing flag
+  };
+
+  // Function to manually load conversations (only when user explicitly wants to see history)
+  const loadConversationsManually = async () => {
+    try {
+      console.log("Manually loading conversations...");
+      const conversationsData = await getConversations();
+      setConversations(conversationsData);
+    } catch (error) {
+      console.error("Error loading conversations:", error);
+    }
   };
 
   // Function to switch to a different conversation
@@ -446,7 +455,13 @@ export default function ChatPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  onClick={() => {
+                    if (!sidebarOpen) {
+                      // Load conversations when opening sidebar
+                      loadConversationsManually();
+                    }
+                    setSidebarOpen(!sidebarOpen);
+                  }}
                   className="touch-target"
                   aria-label="Toggle sidebar"
                 >
