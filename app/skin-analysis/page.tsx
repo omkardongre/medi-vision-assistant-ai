@@ -43,6 +43,7 @@ export default function SkinAnalysisPage() {
   const [analysisMode, setAnalysisMode] = useState<"image" | "video">("image");
   const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   // Cleanup video preview URL when component unmounts
   useEffect(() => {
@@ -51,6 +52,14 @@ export default function SkinAnalysisPage() {
         URL.revokeObjectURL(videoPreview);
       }
     };
+  }, [videoPreview]);
+
+  // Force video to load when videoPreview changes
+  useEffect(() => {
+    if (videoPreview && videoRef.current) {
+      console.log("🎥 Forcing video to load:", videoPreview);
+      videoRef.current.load();
+    }
   }, [videoPreview]);
 
   const handleImageCapture = (imageData: string) => {
@@ -310,19 +319,42 @@ export default function SkinAnalysisPage() {
                 <div className="space-y-4">
                   <div className="relative">
                     <video
+                      ref={videoRef}
+                      key={videoPreview}
                       src={videoPreview}
                       controls
                       className="w-full max-w-md mx-auto rounded-lg border-2 border-border"
-                      onLoadedData={() =>
-                        console.log("🎥 Video loaded successfully")
-                      }
-                      onError={(e) => console.error("🎥 Video load error:", e)}
+                      onLoadedData={() => {
+                        console.log("🎥 Video loaded successfully");
+                        if (videoRef.current) {
+                          console.log("🎥 Video dimensions:", {
+                            videoWidth: videoRef.current.videoWidth,
+                            videoHeight: videoRef.current.videoHeight,
+                            duration: videoRef.current.duration
+                          });
+                        }
+                      }}
+                      onError={(e) => {
+                        console.error("🎥 Video load error:", e);
+                        if (videoRef.current) {
+                          console.error("🎥 Video error details:", videoRef.current.error);
+                        }
+                      }}
                       onCanPlay={() => console.log("🎥 Video can play")}
-                      preload="auto"
+                      onLoadStart={() => console.log("🎥 Video load started")}
+                      preload="metadata"
                       playsInline
+                      muted={false}
+                      crossOrigin="anonymous"
+                      poster=""
                       style={{
                         minHeight: "200px",
+                        maxHeight: "400px",
                         objectFit: "contain",
+                        backgroundColor: "#000",
+                        display: "block",
+                        width: "100%",
+                        height: "auto",
                       }}
                     />
                   </div>
