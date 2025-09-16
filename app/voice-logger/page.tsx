@@ -27,7 +27,7 @@ import { formatAnalysisText } from "@/lib/text-formatter";
 
 export default function VoiceLoggerPage() {
   const router = useRouter();
-  const { speak } = useSpeech();
+  const { speak, stop } = useSpeech();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState<
     (HealthAnalysisResponse & { transcript: string }) | null
@@ -254,25 +254,32 @@ export default function VoiceLoggerPage() {
                 >
                   Record Another Symptom
                 </Button>
-                 <Button
-                   variant="outline"
-                   onClick={() => {
-                     const contextData = {
-                       analysis: analysis.analysis,
-                       urgency: analysis.urgency,
-                       confidence: analysis.confidence,
-                       transcript: analysis.transcript,
-                       recommendations: analysis.recommendations,
-                       followUpQuestions: analysis.followUpQuestions
-                     };
-                     const encodedData = encodeURIComponent(JSON.stringify(contextData));
-                     router.push(`/chat?context=true&type=voice%20analysis&data=${encodedData}`);
-                   }}
-                   className="touch-target"
-                 >
-                   <MessageCircle className="w-4 h-4 mr-2" />
-                   Discuss with AI Assistant
-                 </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    // Stop any ongoing speech before navigation
+                    stop();
+
+                    const contextData = {
+                      analysis: analysis.analysis,
+                      urgency: analysis.urgency,
+                      confidence: analysis.confidence,
+                      transcript: analysis.transcript,
+                      recommendations: analysis.recommendations,
+                      followUpQuestions: analysis.followUpQuestions,
+                    };
+                    const encodedData = encodeURIComponent(
+                      JSON.stringify(contextData)
+                    );
+                    router.push(
+                      `/chat?context=true&type=voice%20analysis&data=${encodedData}`
+                    );
+                  }}
+                  className="touch-target"
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Discuss with AI Assistant
+                </Button>
               </div>
             </CardContent>
           </Card>

@@ -312,13 +312,15 @@ export default function MedicationPage() {
               <div className="mt-6">
                 <ImagenGenerator
                   medicationData={{
-                    name: analysis.analysis.split('\n')[0] || 'Medication',
-                    dosage: 'As prescribed',
-                    frequency: 'Daily',
-                    instructions: analysis.recommendations.join('; ')
+                    name: analysis.analysis.split("\n")[0] || "Medication",
+                    dosage: "As prescribed",
+                    frequency: "Daily",
+                    instructions: analysis.recommendations.join("; "),
                   }}
                   onGenerated={(imageUrl) => {
-                    speak("Health infographic generated successfully. You can download it or generate another one.");
+                    speak(
+                      "Health infographic generated successfully. You can download it or generate another one."
+                    );
                   }}
                 />
               </div>
@@ -337,17 +339,25 @@ export default function MedicationPage() {
                 <Button
                   variant="outline"
                   onClick={() => {
+                    // Stop any ongoing speech before navigation
+                    stop();
+
                     const contextData = {
                       analysis: analysis.analysis,
                       urgency: analysis.urgency,
                       confidence: analysis.confidence,
                       recommendations: analysis.recommendations,
                       followUpQuestions: analysis.followUpQuestions,
-                      medicationName: analysis.analysis.split('\n')[0] || 'Medication',
-                      hasImage: !!capturedImage
+                      medicationName:
+                        analysis.analysis.split("\n")[0] || "Medication",
+                      hasImage: !!capturedImage,
                     };
-                    const encodedData = encodeURIComponent(JSON.stringify(contextData));
-                    router.push(`/chat?context=true&type=medication%20analysis&data=${encodedData}`);
+                    const encodedData = encodeURIComponent(
+                      JSON.stringify(contextData)
+                    );
+                    router.push(
+                      `/chat?context=true&type=medication%20analysis&data=${encodedData}`
+                    );
                   }}
                   className="touch-target"
                 >

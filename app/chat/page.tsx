@@ -63,6 +63,7 @@ export default function ChatPage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const contextProcessedRef = useRef(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -78,7 +79,13 @@ export default function ChatPage() {
     const analysisType = searchParams.get("type");
     const analysisData = searchParams.get("data");
 
-    if (context && analysisType && analysisData) {
+    if (
+      context &&
+      analysisType &&
+      analysisData &&
+      !contextProcessedRef.current
+    ) {
+      contextProcessedRef.current = true; // Prevent duplicate processing
       try {
         const decodedData = decodeURIComponent(analysisData);
         const parsedData = JSON.parse(decodedData);
@@ -111,6 +118,7 @@ export default function ChatPage() {
         // Automatically send the analysis message to get AI response
         const sendAnalysisMessage = async () => {
           try {
+            setIsLoading(true); // Show loading state
             const userMessage = contextMessages[1]; // The analysis message
             const response = await apiClient.sendChatMessage(
               userMessage.content,
@@ -133,11 +141,22 @@ export default function ChatPage() {
             }
           } catch (error) {
             console.error("Error sending analysis message:", error);
+            // Add error message if sending fails
+            const errorMessage: Message = {
+              id: (Date.now() + 1).toString(),
+              role: "assistant",
+              content:
+                "I'm sorry, I'm having trouble responding right now. Please try again in a moment.",
+              timestamp: new Date(),
+            };
+            setMessages((prev) => [...prev, errorMessage]);
+          } finally {
+            setIsLoading(false); // Hide loading state
           }
         };
 
         // Send the analysis message after a short delay to ensure UI is ready
-        setTimeout(sendAnalysisMessage, 500);
+        setTimeout(sendAnalysisMessage, 1000);
 
         // Load conversations list for sidebar (but don't load any specific conversation)
         const loadConversationsForSidebar = async () => {
@@ -232,6 +251,7 @@ export default function ChatPage() {
       },
     ]);
     setSidebarOpen(false);
+    contextProcessedRef.current = false; // Reset context processing flag
   };
 
   // Function to switch to a different conversation

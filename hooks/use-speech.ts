@@ -95,6 +95,15 @@ export function useSpeech(options: UseSpeechOptions = {}) {
           currentCharIndexRef.current = 0;
         };
         utterance.onerror = (event) => {
+          // Don't treat "interrupted" as a real error - it's expected when user navigates
+          if (event.error === 'interrupted') {
+            console.log("Speech interrupted (expected during navigation)");
+            setIsSpeaking(false);
+            setIsPaused(false);
+            setHasError(false); // Don't set error for interruption
+            return;
+          }
+          
           console.error("Speech error:", event.error || "Unknown error");
           setIsSpeaking(false);
           setIsPaused(false);
@@ -123,6 +132,15 @@ export function useSpeech(options: UseSpeechOptions = {}) {
                   currentCharIndexRef.current = 0;
                 };
                 fallbackUtterance.onerror = (fallbackEvent) => {
+                  // Don't treat "interrupted" as a real error in fallback either
+                  if (fallbackEvent.error === 'interrupted') {
+                    console.log("Fallback speech interrupted (expected during navigation)");
+                    setIsSpeaking(false);
+                    setIsPaused(false);
+                    setHasError(false);
+                    return;
+                  }
+                  
                   console.error("Fallback speech also failed:", fallbackEvent.error || "Unknown error");
                   setIsSpeaking(false);
                   setIsPaused(false);

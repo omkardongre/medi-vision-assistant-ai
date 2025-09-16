@@ -483,6 +483,9 @@ export default function SkinAnalysisPage() {
                 <Button
                   variant="outline"
                   onClick={() => {
+                    // Stop any ongoing speech before navigation
+                    stop();
+
                     const contextData = {
                       analysis: analysis.analysis,
                       urgency: analysis.urgency,
@@ -491,10 +494,14 @@ export default function SkinAnalysisPage() {
                       followUpQuestions: analysis.followUpQuestions,
                       analysisMode: analysisMode,
                       hasImage: !!capturedImage,
-                      hasVideo: !!selectedVideo
+                      hasVideo: !!selectedVideo,
                     };
-                    const encodedData = encodeURIComponent(JSON.stringify(contextData));
-                    router.push(`/chat?context=true&type=skin%20analysis&data=${encodedData}`);
+                    const encodedData = encodeURIComponent(
+                      JSON.stringify(contextData)
+                    );
+                    router.push(
+                      `/chat?context=true&type=skin%20analysis&data=${encodedData}`
+                    );
                   }}
                   className="touch-target"
                 >
