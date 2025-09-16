@@ -11,12 +11,13 @@ Key Features:
 - 🎤 Voice Symptom Logger - Record and transcribe health symptoms using speech-to-text
 - 💊 Medication Scanner - OCR-powered medication identification and management
 - 💬 AI Health Chat - Conversational AI for health questions and guidance
+- 🔗 Seamless Analysis-to-Chat Integration - Continue conversations with AI based on analysis results
 - ♿ Full Accessibility Support - Voice navigation, screen reader compatibility, high contrast mode
 - 📱 Progressive Web App - Works offline, installable on any device
 
 ## Demo
 
-Live Application: https://medivision-assistant-ov3t3b7vaa-uc.a.run.app
+Live Application: https://medivision.omkard.site
 
 GitHub Repository: https://github.com/omkardongre/medi-vision-assistant-ai
 
@@ -51,51 +52,43 @@ Accessibility Features: Comprehensive accessibility toolbar with voice navigatio
 
 I leveraged Google AI Studio extensively to power the multimodal capabilities:
 
-### 1. Gemini 2.5 Flash for Video Health Analysis
+### 1. Gemini 2.5 Flash for Skin Analysis (Image + Video)
 
-- Integrated Gemini's advanced video analysis capabilities for comprehensive health monitoring
-- Analyzes uploaded videos up to 25MB for movement patterns, posture, gait analysis, and health indicators
-- Provides detailed health assessments with confidence scores and medical recommendations
-- Supports multiple video formats (MP4, MOV, AVI, WebM) with automatic optimization
-
-### 2. Gemini 2.5 Flash for Skin Analysis
-
-- Integrated Gemini's vision capabilities to analyze uploaded skin photos
+- Integrated Gemini's vision capabilities to analyze uploaded skin photos and videos
 - Provides detailed assessments of skin conditions, moles, rashes, and other dermatological concerns
+- Supports video analysis for dynamic skin condition monitoring and movement patterns
 - Returns structured health insights with confidence scores and recommendations
+- Supports multiple video formats (MP4, MOV, AVI, WebM) up to 25MB
 
-### 3. Gemini 2.5 Flash for Health Chat
+### 2. Gemini 2.5 Flash for Health Chat
 
 - Powers the conversational AI health assistant
 - Processes natural language health questions and provides evidence-based responses
 - Maintains conversation context for follow-up questions
 
-### 4. Imagen 4.0 for Health Infographics
+### 3. Imagen 4.0 for Health Infographics
 
 - Integrated Google Imagen 4.0 for professional medical infographic generation
 - Creates medication schedules, health progress charts, and symptom tracking visuals
 - Generates accessible, high-contrast infographics with professional medical styling
 - Supports download and sharing of AI-generated health content
-- Uses latest Imagen 4.0-generate-001 model for cutting-edge image generation
+- Uses latest Imagen for cutting-edge image generation
 
-### 5. Multimodal Integration
+### 4. Multimodal Integration
 
 - Combined text, image, video, voice, and AI-generated visual content for comprehensive health monitoring
 
 ## Multimodal Features
 
-### 🎥 Video + Text Analysis
+### 🎥 Video + Text Analysis (Skin Analysis Page)
 
-- Video Health Monitoring: Users upload videos for comprehensive health analysis including movement patterns, posture, and gait
-- Exercise Form Analysis: AI evaluates exercise techniques and provides improvement recommendations
-- Symptom Documentation: Video recordings of symptoms for detailed medical assessment
-- Progress Tracking: Visual health progress monitoring over time with video comparisons
+- Video Skin Monitoring: Users upload videos for dynamic skin condition analysis and movement patterns
+- Symptom Documentation: Video recordings of skin symptoms for detailed medical assessment
 
 ### 🖼️ Image + Text Analysis
 
 - Skin Photo Analysis: Users upload photos of skin conditions, and Gemini analyzes them for potential health concerns
 - Medication OCR: Scans medication labels and bottles to extract drug information, dosages, and instructions
-- Visual Health Monitoring: Tracks changes in skin conditions over time with AI-powered analysis
 
 ### 🎤 Voice + Text Processing
 
@@ -106,8 +99,7 @@ I leveraged Google AI Studio extensively to power the multimodal capabilities:
 ### 💬 Conversational AI
 
 - Contextual Health Chat: AI remembers previous conversations and provides personalized health guidance
-- Multimodal Queries: Users can ask questions about their uploaded images, voice recordings, or general health topics
-- Emergency Response: Voice-activated emergency protocols with immediate AI assistance
+- Seamless Analysis Integration: After any analysis (skin, medication, voice logger), users can click "Discuss with AI Assistant" to continue the conversation with full context of their analysis results
 
 ### ♿ Accessibility-First Design
 
@@ -129,8 +121,7 @@ I leveraged Google AI Studio extensively to power the multimodal capabilities:
 
 - Health Records: All multimodal inputs (videos, images, voice, chat, infographics) are stored and organized
 - Export Capabilities: Users can export their health data and AI-generated infographics for medical consultations
-- Video Storage: Secure video analysis results with privacy protection
-- Visual Content: AI-generated infographics stored and accessible for future reference
+- Video Storage: Secure video analysis results
 
 ## Technical Implementation
 

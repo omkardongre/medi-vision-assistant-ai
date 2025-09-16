@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -330,14 +330,17 @@ export default function SkinAnalysisPage() {
                           console.log("🎥 Video dimensions:", {
                             videoWidth: videoRef.current.videoWidth,
                             videoHeight: videoRef.current.videoHeight,
-                            duration: videoRef.current.duration
+                            duration: videoRef.current.duration,
                           });
                         }
                       }}
                       onError={(e) => {
                         console.error("🎥 Video load error:", e);
                         if (videoRef.current) {
-                          console.error("🎥 Video error details:", videoRef.current.error);
+                          console.error(
+                            "🎥 Video error details:",
+                            videoRef.current.error
+                          );
                         }
                       }}
                       onCanPlay={() => console.log("🎥 Video can play")}
