@@ -60,6 +60,7 @@ export default function ChatPage() {
     string | null
   >(null);
   const [isLoadingConversations, setIsLoadingConversations] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -78,7 +79,7 @@ export default function ChatPage() {
 
   // Set initial welcome message immediately on mount
   useEffect(() => {
-    if (messages.length === 0) {
+    if (messages.length === 0 && typeof window !== "undefined") {
       setMessages([
         {
           id: "welcome",
@@ -88,6 +89,7 @@ export default function ChatPage() {
           timestamp: new Date(),
         },
       ]);
+      setIsInitialized(true);
     }
   }, []);
 
@@ -200,7 +202,7 @@ export default function ChatPage() {
     }
   }, [searchParams]);
 
-  // Load conversations on page load (only if no context parameters)
+  // Load conversations on page load (only if no context parameters and after initialization)
   useEffect(() => {
     const context = searchParams.get("context");
     if (context) {
@@ -212,6 +214,11 @@ export default function ChatPage() {
     // Also check if we already have context messages (prevent double loading)
     if (messages.length > 0 && messages[0].id === "context-welcome") {
       setIsLoadingConversations(false);
+      return;
+    }
+
+    // Only load conversations after initialization to prevent layout shifts
+    if (!isInitialized) {
       return;
     }
 
@@ -227,7 +234,7 @@ export default function ChatPage() {
     };
 
     loadConversations();
-  }, [searchParams]);
+  }, [searchParams, isInitialized]);
 
   // Function to start a new chat
   const startNewChat = () => {
@@ -538,7 +545,11 @@ export default function ChatPage() {
                       )}
                     </div>
                     <p className="text-xs opacity-70 mt-2">
-                      {message.timestamp.toLocaleTimeString()}
+                      {new Date(message.timestamp).toLocaleTimeString("en-US", {
+                        hour12: false,
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </p>
                   </CardContent>
                 </Card>
