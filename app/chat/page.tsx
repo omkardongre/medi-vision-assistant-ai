@@ -71,10 +71,8 @@ export default function ChatPage() {
   };
 
   useEffect(() => {
-    // Only scroll to bottom if there are multiple messages (not just the welcome message)
-    if (messages.length > 1) {
-      scrollToBottom();
-    }
+    // Always scroll to bottom when messages change to keep input visible
+    scrollToBottom();
   }, [messages]);
 
   // Set initial welcome message immediately on mount
@@ -322,9 +320,8 @@ export default function ChatPage() {
       // Update conversation ID if this is a new conversation
       if (response.conversationId && !currentConversationId) {
         setCurrentConversationId(response.conversationId);
-        // Refresh conversations list to include the new conversation
-        const updatedConversations = await getConversations();
-        setConversations(updatedConversations);
+        // Don't refresh conversations list automatically to prevent layout shifts
+        // Conversations will be loaded when user opens sidebar
       }
 
       // Check for emergency detection
@@ -518,7 +515,7 @@ export default function ChatPage() {
         </header>
 
         {/* Chat Messages */}
-        <div className="flex-1 container mx-auto px-4 py-2 max-w-4xl overflow-y-auto min-h-0">
+        <div className="flex-1 container mx-auto px-4 py-2 max-w-4xl min-h-0">
           <div className="space-y-4 mb-2">
             {messages.map((message) => (
               <div
