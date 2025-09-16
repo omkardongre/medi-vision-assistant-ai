@@ -209,7 +209,7 @@ export default function VoiceLoggerPage() {
                           className="text-sm text-muted-foreground flex items-start gap-2"
                         >
                           <span className="text-primary">•</span>
-                          <span>{question}</span>
+                          <span>{formatAnalysisText(question)}</span>
                         </li>
                       ))}
                     </ul>
@@ -229,7 +229,7 @@ export default function VoiceLoggerPage() {
                         className="text-sm text-muted-foreground flex items-start gap-2"
                       >
                         <span className="text-primary">•</span>
-                        <span>{rec}</span>
+                        <span>{formatAnalysisText(rec)}</span>
                       </li>
                     ))}
                   </ul>
