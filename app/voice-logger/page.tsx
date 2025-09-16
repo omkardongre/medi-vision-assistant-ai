@@ -254,14 +254,25 @@ export default function VoiceLoggerPage() {
                 >
                   Record Another Symptom
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => router.push("/chat")}
-                  className="touch-target"
-                >
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Discuss with AI Assistant
-                </Button>
+                 <Button
+                   variant="outline"
+                   onClick={() => {
+                     const contextData = {
+                       analysis: analysis.analysis,
+                       urgency: analysis.urgency,
+                       confidence: analysis.confidence,
+                       transcript: analysis.transcript,
+                       recommendations: analysis.recommendations,
+                       followUpQuestions: analysis.followUpQuestions
+                     };
+                     const encodedData = encodeURIComponent(JSON.stringify(contextData));
+                     router.push(`/chat?context=true&type=voice%20analysis&data=${encodedData}`);
+                   }}
+                   className="touch-target"
+                 >
+                   <MessageCircle className="w-4 h-4 mr-2" />
+                   Discuss with AI Assistant
+                 </Button>
               </div>
             </CardContent>
           </Card>

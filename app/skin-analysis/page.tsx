@@ -482,7 +482,20 @@ export default function SkinAnalysisPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => router.push("/chat")}
+                  onClick={() => {
+                    const contextData = {
+                      analysis: analysis.analysis,
+                      urgency: analysis.urgency,
+                      confidence: analysis.confidence,
+                      recommendations: analysis.recommendations,
+                      followUpQuestions: analysis.followUpQuestions,
+                      analysisMode: analysisMode,
+                      hasImage: !!capturedImage,
+                      hasVideo: !!selectedVideo
+                    };
+                    const encodedData = encodeURIComponent(JSON.stringify(contextData));
+                    router.push(`/chat?context=true&type=skin%20analysis&data=${encodedData}`);
+                  }}
                   className="touch-target"
                 >
                   Discuss with AI Assistant

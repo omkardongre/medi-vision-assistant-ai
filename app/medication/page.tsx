@@ -336,7 +336,19 @@ export default function MedicationPage() {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => router.push("/chat")}
+                  onClick={() => {
+                    const contextData = {
+                      analysis: analysis.analysis,
+                      urgency: analysis.urgency,
+                      confidence: analysis.confidence,
+                      recommendations: analysis.recommendations,
+                      followUpQuestions: analysis.followUpQuestions,
+                      medicationName: analysis.analysis.split('\n')[0] || 'Medication',
+                      hasImage: !!capturedImage
+                    };
+                    const encodedData = encodeURIComponent(JSON.stringify(contextData));
+                    router.push(`/chat?context=true&type=medication%20analysis&data=${encodedData}`);
+                  }}
                   className="touch-target"
                 >
                   Ask About This Medication
