@@ -70,8 +70,10 @@ export default function ChatPage() {
   };
 
   useEffect(() => {
-    // Scroll to bottom when messages change, but with a small delay to ensure DOM is updated
-    setTimeout(scrollToBottom, 100);
+    // Only scroll to bottom if there are multiple messages (not just the welcome message)
+    if (messages.length > 1) {
+      scrollToBottom();
+    }
   }, [messages]);
 
   // Handle URL parameters for context from analysis pages
@@ -200,8 +202,8 @@ export default function ChatPage() {
 
     const loadConversations = async () => {
       try {
-        setIsLoadingConversations(true);
-        console.log("Loading conversations...");
+        // Don't show loading state since we're starting with new chat
+        console.log("Loading conversations for sidebar...");
         const conversationsData = await getConversations();
         console.log("Loaded conversations:", conversationsData);
         setConversations(conversationsData);
@@ -430,7 +432,7 @@ export default function ChatPage() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
         {/* Header */}
         <header className="border-b border-border bg-card">
           <div className="px-4 py-4">
@@ -496,7 +498,7 @@ export default function ChatPage() {
         </header>
 
         {/* Chat Messages */}
-        <div className="flex-1 container mx-auto px-4 py-4 max-w-4xl overflow-y-auto">
+        <div className="flex-1 container mx-auto px-4 py-2 max-w-4xl overflow-y-auto min-h-0">
           {isLoadingConversations ? (
             <div className="flex items-center justify-center h-32">
               <div className="text-muted-foreground">
@@ -504,7 +506,7 @@ export default function ChatPage() {
               </div>
             </div>
           ) : (
-            <div className="space-y-4 mb-4">
+            <div className="space-y-4 mb-2">
               {messages.map((message) => (
                 <div
                   key={message.id}
@@ -592,8 +594,8 @@ export default function ChatPage() {
         </div>
 
         {/* Input Area */}
-        <div className="border-t border-border bg-card">
-          <div className="container mx-auto px-4 py-4 max-w-4xl">
+        <div className="border-t border-border bg-card flex-shrink-0">
+          <div className="container mx-auto px-4 py-2 max-w-4xl">
             <div className="flex gap-2">
               <Input
                 value={inputMessage}
