@@ -74,34 +74,71 @@ export default function ChatPage() {
 
   // Handle URL parameters for context from analysis pages
   useEffect(() => {
-    const context = searchParams.get('context');
-    const analysisType = searchParams.get('type');
-    const analysisData = searchParams.get('data');
+    const context = searchParams.get("context");
+    const analysisType = searchParams.get("type");
+    const analysisData = searchParams.get("data");
 
     if (context && analysisType && analysisData) {
       try {
         const decodedData = decodeURIComponent(analysisData);
         const parsedData = JSON.parse(decodedData);
-        
+
         // Create context-aware initial messages
         const contextMessages: Message[] = [
           {
             id: "context-welcome",
             role: "assistant",
-            content: `Hello! I can see you've just completed a ${analysisType} analysis. I'm here to help you discuss the results and answer any questions you might have about your health.`,
+            content: `Hello! I'm your AI health assistant. I can see you've just completed a ${analysisType} analysis. I'm here to help you discuss the results and answer any questions you might have about your health.`,
             timestamp: new Date(),
           },
           {
-            id: "context-analysis",
-            role: "assistant",
-            content: `Based on your ${analysisType} analysis:\n\n${parsedData.analysis || parsedData.summary || 'Analysis completed successfully.'}\n\nWhat would you like to know more about?`,
+            id: "context-analysis-user",
+            role: "user",
+            content: `I just completed a ${analysisType} analysis. Here are the results:\n\n${
+              parsedData.analysis ||
+              parsedData.summary ||
+              "Analysis completed successfully."
+            }\n\nCan you help me understand these results and answer any questions I might have?`,
             timestamp: new Date(),
-          }
+          },
         ];
 
+        // Completely reset state for new context-based chat
         setMessages(contextMessages);
         setCurrentConversationId(null); // Start new conversation with context
-        
+        setIsLoadingConversations(false); // Ensure loading state is false
+
+        // Automatically send the analysis message to get AI response
+        const sendAnalysisMessage = async () => {
+          try {
+            const userMessage = contextMessages[1]; // The analysis message
+            const response = await apiClient.sendChatMessage(
+              userMessage.content,
+              [], // Empty conversation history for new chat
+              null // No existing conversation ID
+            );
+
+            const assistantMessage: Message = {
+              id: (Date.now() + 1).toString(),
+              role: "assistant",
+              content: formatAnalysisText(response.message),
+              timestamp: new Date(),
+            };
+
+            setMessages((prev) => [...prev, assistantMessage]);
+
+            // Update conversation ID if this created a new conversation
+            if (response.conversationId) {
+              setCurrentConversationId(response.conversationId);
+            }
+          } catch (error) {
+            console.error("Error sending analysis message:", error);
+          }
+        };
+
+        // Send the analysis message after a short delay to ensure UI is ready
+        setTimeout(sendAnalysisMessage, 500);
+
         // Load conversations list for sidebar (but don't load any specific conversation)
         const loadConversationsForSidebar = async () => {
           try {
@@ -112,13 +149,13 @@ export default function ChatPage() {
           }
         };
         loadConversationsForSidebar();
-        
+
         // Clear URL parameters after processing
         const newUrl = new URL(window.location.href);
-        newUrl.searchParams.delete('context');
-        newUrl.searchParams.delete('type');
-        newUrl.searchParams.delete('data');
-        window.history.replaceState({}, '', newUrl.toString());
+        newUrl.searchParams.delete("context");
+        newUrl.searchParams.delete("type");
+        newUrl.searchParams.delete("data");
+        window.history.replaceState({}, "", newUrl.toString());
       } catch (error) {
         console.error("Error parsing context data:", error);
         // Fall back to normal conversation loading
@@ -128,9 +165,15 @@ export default function ChatPage() {
 
   // Load conversations on page load (only if no context parameters)
   useEffect(() => {
-    const context = searchParams.get('context');
+    const context = searchParams.get("context");
     if (context) {
-      // If we have context, don't load existing conversations
+      // If we have context, don't load existing conversations at all
+      setIsLoadingConversations(false);
+      return;
+    }
+
+    // Also check if we already have context messages (prevent double loading)
+    if (messages.length > 0 && messages[0].id === "context-welcome") {
       setIsLoadingConversations(false);
       return;
     }
