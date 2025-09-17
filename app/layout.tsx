@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   title: "MediVision Assistant - AI-Powered Healthcare Companion",
   description:
     "Accessible multimodal health monitoring for elderly and disabled users",
-  generator: "v0.app",
+  generator: "",
   keywords: [
     "healthcare",
     "accessibility",

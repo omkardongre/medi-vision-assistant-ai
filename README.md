@@ -1,62 +1,44 @@
 # 🏥 MediVision Assistant
 
-### AI-Powered Healthcare Companion with Emergency Intelligence
+### AI-Powered Healthcare Companion
 
-> **Winner-Ready Hackathon Project** | Advanced multimodal AI healthcare assistant designed for elderly and disabled users with real-time emergency detection and pattern recognition.
-
-![MediVision Dashboard](https://via.placeholder.com/800x400/10b981/ffffff?text=MediVision+Dashboard+Screenshot)
-
-## 🚀 **Live Demo**
-
-**[Try MediVision Now →](https://your-deployment-url.vercel.app)** | **[Video Demo →](https://your-demo-video-url)**
-
----
+> **Advanced multimodal AI healthcare assistant** designed for elderly and disabled users with comprehensive health monitoring and accessibility features.
 
 ## 🎯 **The Problem**
 
 - **73% of elderly users** struggle with complex healthcare apps
-- **Emergency detection delays** cost lives in critical situations
 - **Fragmented health data** leads to poor care coordination
 - **Accessibility barriers** prevent disabled users from accessing digital health tools
+- **Limited multimodal input** options for health monitoring
 
 ## 💡 **Our Solution**
 
-**MediVision Assistant** - The world's first AI healthcare companion with **real-time emergency intelligence**, designed specifically for elderly and disabled users.
+**MediVision Assistant** - An AI-powered healthcare companion that makes medical assistance accessible to everyone, especially those with visual impairments or accessibility needs.
 
-### **🔥 Key Innovations**
-
-#### 🚨 **Emergency Intelligence System**
-
-- **Real-time pattern recognition** for health emergencies
-- **Automatic escalation protocols** with confidence scoring
-- **Critical keyword detection** ("chest pain", "can't breathe", "heart attack")
-- **Vital signs monitoring** with emergency thresholds
-- **One-tap emergency services** integration
+### **🔥 Key Features**
 
 #### 🤖 **Advanced Multimodal AI**
 
-- **Google Gemini 2.5 Flash** integration for health analysis
-- **Live API streaming** for real-time responses
-- **Image analysis** for skin conditions and medication scanning
-- **Video analysis** for comprehensive health monitoring (up to 25MB)
-- **Imagen 4.0** for AI-generated health infographics
-- **Voice processing** for accessibility and ease of use
-- **Context-aware conversations** with medical expertise
+- **AI Skin Analysis** - Upload photos and videos for instant skin condition assessment
+- **AI Health Infographics** - Generate professional medical infographics using advanced AI image generation
+- **Voice Symptom Logger** - Record and transcribe health symptoms using speech-to-text
+- **Medication Scanner** - OCR-powered medication identification and management
+- **AI Health Chat** - Conversational AI for health questions and guidance
+- **Seamless Analysis-to-Chat Integration** - Continue conversations with AI based on analysis results
 
 #### ♿ **Accessibility-First Design**
 
+- **Full Accessibility Support** - Voice navigation, screen reader compatibility, high contrast mode
 - **Voice navigation** and screen reader optimization
 - **High contrast modes** and font scaling
 - **Keyboard-only navigation** support
 - **Simple, large UI elements** for motor impairments
-- **Multi-language support** ready
 
 #### 📱 **Progressive Web App (PWA)**
 
+- **Progressive Web App** - Works offline, installable on any device
 - **Installable on any device** (phone, tablet, desktop)
-- **Offline emergency contacts** always accessible
 - **Background sync** for health data
-- **Push notifications** for medication reminders
 - **Native app experience** without app stores
 
 ---
@@ -65,22 +47,14 @@
 
 ### 🔍 **Smart Health Analysis**
 
-| Feature                | Description                                        | AI Model          |
-| ---------------------- | -------------------------------------------------- | ----------------- |
-| **Skin Analysis**      | Analyze photos of skin conditions, rashes, wounds  | Gemini 2.5 Flash |
-| **Video Analysis**     | Analyze health videos for movement, posture, gait  | Gemini 2.5 Flash |
-| **Medication Scanner** | Identify pills, check interactions, verify dosages | Gemini 2.5 Flash |
-| **Health Infographics**| AI-generated medical visual content and schedules  | Imagen 4.0 |
-| **Voice Logger**       | Process voice descriptions of symptoms             | Gemini 2.5 Flash |
-| **Health Chat**        | Intelligent health conversations with context      | Gemini 2.5 Flash |
-
-### 🚨 **Emergency Intelligence**
-
-- **Pattern Recognition**: Detects declining health trends from user data
-- **Emergency Detection**: Real-time analysis of user input for emergency keywords
-- **Automatic Escalation**: Confidence-scored alerts with recommended actions
-- **Critical Thresholds**: Monitors vital signs for dangerous levels
-- **Emergency Contacts**: One-tap access to 911, crisis lines, poison control
+| Feature                 | Description                                        | AI Model         |
+| ----------------------- | -------------------------------------------------- | ---------------- |
+| **Skin Analysis**       | Analyze photos of skin conditions, rashes, wounds  | Gemini 2.5 Flash |
+| **Video Analysis**      | Analyze health videos for movement, posture, gait  | Gemini 2.5 Flash |
+| **Medication Scanner**  | Identify pills, check interactions, verify dosages | Gemini 2.5 Flash |
+| **Health Infographics** | AI-generated medical visual content and schedules  | Imagen 4.0       |
+| **Voice Logger**        | Process voice descriptions of symptoms             | Gemini 2.5 Flash |
+| **Health Chat**         | Intelligent health conversations with context      | Gemini 2.5 Flash |
 
 ### 📊 **Health Data Management**
 
@@ -92,11 +66,10 @@
 
 ### 🌐 **Accessibility & PWA**
 
-- **Voice Commands**: "Hey MediVision" wake word detection
-- **Offline Mode**: Emergency contacts and cached data work without internet
+- **Voice Commands**: Complete app navigation using voice commands
+- **Offline Mode**: Cached data work without internet
 - **Install Anywhere**: Works on phones, tablets, computers as native app
 - **Background Sync**: Data syncs automatically when connection restored
-- **Push Notifications**: Medication reminders and health alerts
 
 ---
 
@@ -123,27 +96,36 @@
 - **Vercel** - Serverless deployment and analytics
 - **PWA Service Worker** - Offline functionality and caching
 
-### **Emergency & Intelligence**
-
-- **Custom Emergency Intelligence Engine** - Pattern recognition system
-- **Real-time Alert System** - Confidence-scored emergency detection
-- **Geolocation API** - Location sharing for emergency services
-
 ---
 
 ## 📱 **Screenshots**
 
-### Emergency Alert System
+### Screenshots
 
-![Emergency Alert](https://via.placeholder.com/600x400/ef4444/ffffff?text=🚨+CRITICAL+ALERT+Emergency+Detected)
+Homepage Dashboard: Clean, accessible dashboard with health summary and quick actions
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/t953kyqweffpg7wdiflt.png)
 
-### Multimodal Health Analysis
+Skin Analysis: AI-powered skin condition analysis with detailed insights
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/yul1vb2f6ib37v4trlt6.png)
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/npe4ggha14r85n3j9ukw.png)
 
-![Health Analysis](https://via.placeholder.com/600x400/10b981/ffffff?text=📊+AI+Health+Analysis+Results)
+Voice Logger: Voice-to-text symptom recording with transcription
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/qk52jt47yn8puwqycm2r.png)
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/qfq5rbes56r917w1vhtm.png)
 
-### Accessible Design
+Health Chat: Conversational AI for health questions
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/u589w00ngr8cu5upwl8w.png)
 
-![Accessibility](https://via.placeholder.com/600x400/8b5cf6/ffffff?text=♿+Voice+Navigation+Active)
+AI Health Infographics: Professional medical infographics
+
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/enhn887x4299iredieec.png)
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/kylaxqh1cc68u6k7b8sn.png)
+
+Health Records
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/3l9y96zckvbavb7fowvx.png)
+
+Accessibility Features: Comprehensive accessibility toolbar with voice navigation
+![Image description](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/0dayoklfqjd6hgkwki6r.png)
 
 ---
 
@@ -152,8 +134,8 @@
 ### **1. Clone & Install**
 
 ```bash
-git clone https://github.com/your-username/medi-vision-assistant-ez
-cd medi-vision-assistant-ez
+git clone https://github.com/omkardongre/medi-vision-assistant-ai
+cd medi-vision-assistant-ai
 npm install
 ```
 
@@ -165,18 +147,21 @@ cp .env.example .env.local
 
 # Add your API keys:
 GOOGLE_AI_API_KEY=your_gemini_api_key
+GCP_PROJECT_ID=your_gcp_project_id
+CUSTOM_KEY=your_custom_key
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+NEXT_PUBLIC_SITE_URL=https://medivision.yourdomain.com
 ```
 
 ### **3. Database Setup**
 
 ```bash
-# Run Supabase migrations
-npx supabase db push
-
-# Seed sample data (optional)
-npm run db:seed
+# Set up Supabase database using the provided SQL schema
+# Import the supabase-schema.sql file into your Supabase project
+# This will create all necessary tables for health records, conversations, and user data
+# The schema includes proper RLS policies and triggers for data security
 ```
 
 ### **4. Development**
@@ -200,49 +185,32 @@ npm start
 
 ## 🧪 **Demo Instructions**
 
-### **🎭 For Judges/Reviewers:**
+### **🎭 For Demo/Review:**
 
-1. **Emergency Demo**: Type "I'm having chest pain" in chat → Watch real-time emergency alert
-2. **Skin Analysis**: Upload a photo → See AI medical analysis with confidence scores
-3. **Voice Commands**: Say "Hey MediVision" → Experience voice navigation
+1. **Skin Analysis**: Upload a photo → See AI medical analysis with confidence scores
+2. **Voice Commands**: Use voice navigation → Experience accessibility features
+3. **Health Chat**: Ask health questions → Get AI-powered responses
 4. **PWA Install**: Click browser install prompt → Use as native app
-5. **Offline Mode**: Disconnect internet → Emergency contacts still work
+5. **Voice Logger**: Record symptoms → See transcription and analysis
 
-### **🔥 Judge-Impressing Features:**
+### **🔥 Key Features to Highlight:**
 
-- **Real-time emergency detection** during chat streaming
-- **One-tap emergency calls** with location sharing
-- **Offline emergency contacts** work without internet
+- **Multimodal AI analysis** with image, video, and voice processing
+- **Accessibility-first design** with voice navigation and screen reader support
+- **Progressive Web App** with offline functionality
 - **Voice accessibility** with natural language commands
-- **Professional medical UI** with HIPAA compliance considerations
-
----
-
-## 📊 **Impact & Market**
-
-### **Target Users**
-
-- **65+ million elderly Americans** struggling with digital health tools
-- **61 million disabled Americans** needing accessible healthcare technology
-- **Family caregivers** monitoring loved ones remotely
-- **Healthcare providers** seeking better patient engagement tools
-
-### **Market Opportunity**
-
-- **$350B Digital Health Market** growing 25% annually
-- **$4.2B Emergency Response Market** with technology gaps
-- **97% smartphone adoption** in target demographics by 2024
+- **Professional medical UI** with comprehensive health monitoring
 
 ### **Competitive Advantage**
 
-✅ **Only solution** combining emergency AI with accessibility-first design  
+✅ **Only solution** combining multimodal AI with accessibility-first design  
 ✅ **Real-time streaming analysis** vs batch processing competitors  
 ✅ **PWA deployment** = zero app store friction  
 ✅ **Open source friendly** vs proprietary closed systems
 
 ---
 
-## 🏆 **What Makes This Hackathon-Winning**
+## 🏆 **What Makes This Project Stand Out**
 
 ### **Technical Excellence**
 
@@ -253,42 +221,17 @@ npm start
 
 ### **Social Impact**
 
-- **Life-Saving Technology**: Real emergency detection and response
 - **Inclusivity Focus**: Built for underserved elderly and disabled communities
 - **Healthcare Access**: Breaks down barriers to digital health tools
-- **Family Peace of Mind**: Caregivers get automated health monitoring
+- **Family Peace of Mind**: Caregivers get comprehensive health monitoring
+- **Accessibility Leadership**: Voice-first design with full WCAG compliance
 
 ### **Innovation Factor**
 
-- **First-of-its-kind**: Emergency intelligence in healthcare chat
-- **Bleeding-edge AI**: Google's newest multimodal models
+- **First-of-its-kind**: Multimodal AI healthcare companion with accessibility focus
+- **Advanced AI Integration**: Latest multimodal models for comprehensive health analysis
 - **Cross-platform PWA**: Works everywhere without app stores
 - **Open Development**: Extensible architecture for future enhancements
-
----
-
-## 📈 **Roadmap & Future Features**
-
-### **Phase 2: Enhanced Intelligence**
-
-- [ ] Medication interaction database integration
-- [ ] Wearable device connectivity (Apple Watch, Fitbit)
-- [ ] Family caregiver dashboard with alerts
-- [ ] Telehealth provider integration
-
-### **Phase 3: Advanced AI**
-
-- [ ] Predictive health modeling with trend analysis
-- [ ] Multi-language support (Spanish, Chinese, etc.)
-- [ ] Integration with electronic health records (EHR)
-- [ ] Clinical decision support tools
-
-### **Phase 4: Ecosystem**
-
-- [ ] Healthcare provider admin portal
-- [ ] Insurance integration and claims assistance
-- [ ] Community support features and peer connections
-- [ ] Clinical trial matching and recruitment
 
 ---
 
@@ -313,32 +256,7 @@ We welcome contributions! See our [Contributing Guide](CONTRIBUTING.md) for deta
 - **Accessibility Compliance** - WCAG 2.1 AA standards targeted
 - **Medical Disclaimer** - For informational purposes, not medical advice
 
----
-
-## 👥 **Team**
-
-Built with ❤️ by the MediVision team during [Hackathon Name]
-
-- **[Your Name]** - Full Stack Development, AI Integration
-- **Contributors Welcome** - Join us in making healthcare accessible!
-
----
-
 ## 📞 **Support & Contact**
 
-- 💬 **Issues**: [GitHub Issues](https://github.com/your-username/medi-vision-assistant-ez/issues)
-- 📧 **Email**: your-email@example.com
-- 🐦 **Twitter**: [@YourHandle](https://twitter.com/yourhandle)
-- 💼 **LinkedIn**: [Your Profile](https://linkedin.com/in/yourprofile)
-
----
-
-<div align="center">
-
-## 🏆 **Ready to Save Lives with AI?**
-
-**[⭐ Star this repo](https://github.com/your-username/medi-vision-assistant-ez)** • **[🚀 Try the demo](https://your-deployment-url.vercel.app)** • **[🤝 Contribute](CONTRIBUTING.md)**
-
-### Built for [Hackathon Name 2024] | Made with 🧠 AI + ❤️ Accessibility
-
-</div>
+- 💬 **Issues**: [GitHub Issues](https://github.com/omkardongre/medi-vision-assistant-ai/issues)
+- 📧 **Email**: omkardongre5@gmail.com

@@ -1,5 +1,5 @@
--- Enable Row Level Security
-ALTER DATABASE postgres SET "app.jwt_secret" TO 'your-jwt-secret';
+-- MediVision Assistant - Supabase Database Schema
+-- Run this in your Supabase SQL Editor
 
 -- Create profiles table (extends auth.users)
 CREATE TABLE public.profiles (
@@ -105,6 +105,9 @@ CREATE POLICY "Users can insert own conversations" ON public.conversations
 CREATE POLICY "Users can update own conversations" ON public.conversations
   FOR UPDATE USING (auth.uid() = user_id);
 
+CREATE POLICY "Users can delete own conversations" ON public.conversations
+  FOR DELETE USING (auth.uid() = user_id);
+
 -- Medications: Users can only see and edit their own medications
 CREATE POLICY "Users can view own medications" ON public.medications
   FOR SELECT USING (auth.uid() = user_id);
@@ -115,12 +118,21 @@ CREATE POLICY "Users can insert own medications" ON public.medications
 CREATE POLICY "Users can update own medications" ON public.medications
   FOR UPDATE USING (auth.uid() = user_id);
 
+CREATE POLICY "Users can delete own medications" ON public.medications
+  FOR DELETE USING (auth.uid() = user_id);
+
 -- Medication Logs: Users can only see and edit their own logs
 CREATE POLICY "Users can view own medication logs" ON public.medication_logs
   FOR SELECT USING (auth.uid() = user_id);
 
 CREATE POLICY "Users can insert own medication logs" ON public.medication_logs
   FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own medication logs" ON public.medication_logs
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own medication logs" ON public.medication_logs
+  FOR DELETE USING (auth.uid() = user_id);
 
 -- Create triggers for updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()

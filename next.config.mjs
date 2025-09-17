@@ -14,7 +14,7 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
-    domains: ["blob.v0.app"],
+    domains: [],
     formats: ["image/webp", "image/avif"],
   },
 
