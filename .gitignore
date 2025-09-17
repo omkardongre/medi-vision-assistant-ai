@@ -29,3 +29,5 @@ next-env.d.ts
 
 google-cloud-sdk/
 google-cloud-sdk-*.tar.gz
+
+personal_docs/
